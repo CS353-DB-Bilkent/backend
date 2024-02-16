@@ -1,0 +1,54 @@
+server:
+  port: 8080
+  tomcat:
+    remoteip:
+      remote-ip-header: X-Forwarded-For
+      protocol-header: X-Forwarded-Proto
+
+spring:
+  security:
+    user:
+      name: admin
+      password: admin
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  admin:
+    password: admin
+
+  datasource:
+    url: jdbc:postgresql://awseb-e-y3aupdntca-stack-awsebrdsdatabase-rk6chm3kvbrd.c2w7fttokzfc.eu-central-1.rds.amazonaws.com:5432/postgres
+    username: dbuser1
+    password: eHrD1By1rfwQglD
+    driver-class-name: org.postgresql.Driver
+
+  sql:
+    init:
+      platform: postgres
+      mode: always
+
+  data:
+    s3:
+      accesskey: ak
+      secretkey: sk
+      region: rg
+
+  jwt:
+    secret: "asasas"
+    ttl: 600000
+    issuer: ticket-app
+
+frontend:
+  url: http://localhost:3000
+
+springdoc:
+  user:
+    name: admin
+    password: admin
+  swagger-ui:
+    path: /documentation
+  api-docs:
+    path: /documentation

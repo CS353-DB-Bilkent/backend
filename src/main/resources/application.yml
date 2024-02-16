@@ -1,0 +1,55 @@
+server:
+  port: 8080
+  tomcat:
+    remoteip:
+      remote-ip-header: X-Forwarded-For
+      protocol-header: X-Forwarded-Proto
+
+
+spring:
+  security:
+    user:
+      name: admin
+      password: ${SPRING_PASSWORD}  # Although this seems useless, it's required
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  admin:
+    password: ${ADMIN_PASSWORD} # default admin password
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  sql:
+    init:
+      platform: postgres
+      mode: always
+
+  data:
+    s3:
+      accesskey: ${S3_ACCESSKEY}
+      secretkey: ${S3_SECRETKEY}
+      region: ${S3_REGION}
+
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+    ttl: ${JWT_TTL}
+    issuer: ${JWT_ISSUER}
+
+frontend:
+  url: ${FRONTEND_URL:http://localhost:3000}
+
+springdoc:
+  user:
+    name: ${SWAGGER_USERNAME:admin}
+    password: ${SWAGGER_PASSWORD:admin}
+  swagger-ui:
+    path: /documentation
+  api-docs:
+    path: /documentation
