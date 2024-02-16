@@ -13,10 +13,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
@@ -33,18 +29,6 @@ public class UserController {
         return ResponseEntity.ok(
                 ApiResponse.<UserDto>builder()
                         .operationResultData(user.toUserDto())
-                        .build()
-        );
-    }
-
-    @GetMapping("/{bilkentId}")
-    @RequiredRole({ Role.ADMIN })
-    public ResponseEntity<ApiResponse<UserDto>> getUser(@NotNull @NotBlank @PathVariable String bilkentId) {
-        User requestedUser = userService.getUserByBilkentId(bilkentId);
-
-        return ResponseEntity.ok(
-                ApiResponse.<UserDto>builder()
-                        .operationResultData(requestedUser.toUserDto())
                         .build()
         );
     }
