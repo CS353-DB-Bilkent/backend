@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS users; -- remove this once we have data to work with :)
 
 CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
