@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 
 
 @Getter
@@ -28,6 +30,16 @@ public class User extends BaseEntity {
 
     private Role role;
 
+    private String phone;
+
+    private LocalDateTime registeredDate;
+
+    private LocalDateTime birthDate;
+
+    private String IBAN;
+
+    private String companyName;
+
     public UserDto toUserDto() {
 
         return UserDto.builder()
@@ -35,6 +47,11 @@ public class User extends BaseEntity {
                 .userId(userId)
                 .role(role.name())
                 .name(name)
+                .phone(phone)
+                .registeredDate(registeredDate)
+                .birthDate(birthDate)
+                .IBAN(IBAN)
+                .companyName(companyName)
                 .build();
     }
 }

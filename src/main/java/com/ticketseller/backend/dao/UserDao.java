@@ -27,10 +27,14 @@ public class UserDao {
         params.put("email", user.getEmail());
         params.put("password", user.getPassword());
         params.put("role", user.getRole().name());
+        params.put("phone", user.getPhone());
+        params.put("registered_date", user.getRegisteredDate());
+        params.put("birth_date", user.getBirthDate());
+        params.put("IBAN", user.getIBAN());
+        params.put("company_name", user.getCompanyName());
 
-        String sql =
-            "INSERT INTO users (user_name, email, user_password, user_type) "
-            + "VALUES (:user_name, :email, :user_password, :user_type)";
+        String sql = "INSERT INTO USERS (name, email, password, role, phone, registered_date, birth_date, IBAN, company_name) "
+                + "VALUES (:name, :email, :password, :role, :phone, :registered_date, :birth_date, :IBAN, :company_name)";
 
         jdbcTemplate.update(sql, params);
     }
@@ -40,7 +44,7 @@ public class UserDao {
         params.put("user_id", userId);
 
         String sql =
-            "SELECT u.user_id, u.name, u.email, u.password ,u.role " +
+            "SELECT * " +
              "FROM USERS u WHERE u.user_id = :user_id";
 
         try {
@@ -48,13 +52,18 @@ public class UserDao {
             return Optional.of(jdbcTemplate.queryForObject(sql, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
-                    return User.builder()
-                    .userId(rsw.getLong("user_id"))
-                    .email(rsw.getString("email"))
-                    .name(rsw.getString("name"))
-                    .password(rsw.getString("password"))
-                    .role(Role.getRoleFromStringValue(rsw.getString("role")))
-                    .build();
+                return User.builder()
+                        .userId(rsw.getLong("user_id"))
+                        .email(rsw.getString("email"))
+                        .name(rsw.getString("name"))
+                        .password(rsw.getString("password"))
+                        .role(Role.getRoleFromStringValue(rsw.getString("role")))
+                        .birthDate(rsw.getLocalDateTime("birth_date"))
+                        .registeredDate(rsw.getLocalDateTime("registered_date"))
+                        .phone(rsw.getString("phone"))
+                        .IBAN(rsw.isNull("IBAN") ? null : rsw.getString("IBAN"))
+                        .companyName(rsw.isNull("company_name") ? null : rsw.getString("company_name"))
+                        .build();
                 }));
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -66,7 +75,7 @@ public class UserDao {
         params.put("email", email);
 
         String sql =
-                "SELECT u.user_id, u.name, u.email, u.password, u.role " +
+                "SELECT * " +
                         "FROM USERS u WHERE u.email = :email";
 
         try {
@@ -80,6 +89,43 @@ public class UserDao {
                         .name(rsw.getString("name"))
                         .password(rsw.getString("password"))
                         .role(Role.getRoleFromStringValue(rsw.getString("role")))
+                        .birthDate(rsw.getLocalDateTime("birth_date"))
+                        .registeredDate(rsw.getLocalDateTime("registered_date"))
+                        .phone(rsw.getString("phone"))
+                        .IBAN(rsw.isNull("IBAN") ? null : rsw.getString("IBAN"))
+                        .companyName(rsw.isNull("company_name") ? null : rsw.getString("company_name"))
+                        .build();
+            }));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<User> getUserByEmailOrPhone(String email, String phone) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("email", email);
+        params.put("phone", phone);
+
+        String sql =
+                "SELECT * " +
+                        "FROM USERS u WHERE u.email = :email OR u.phone = :phone";
+
+        try {
+
+            return Optional.of(jdbcTemplate.queryForObject(sql, params, (rs, rnum) -> {
+                ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                return User.builder()
+                        .userId(rsw.getLong("user_id"))
+                        .email(rsw.getString("email"))
+                        .name(rsw.getString("name"))
+                        .password(rsw.getString("password"))
+                        .role(Role.getRoleFromStringValue(rsw.getString("role")))
+                        .birthDate(rsw.getLocalDateTime("birth_date"))
+                        .registeredDate(rsw.getLocalDateTime("registered_date"))
+                        .phone(rsw.getString("phone"))
+                        .IBAN(rsw.isNull("IBAN") ? null : rsw.getString("IBAN"))
+                        .companyName(rsw.isNull("company_name") ? null : rsw.getString("company_name"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {

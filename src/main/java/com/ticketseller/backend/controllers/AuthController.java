@@ -1,14 +1,11 @@
 package com.ticketseller.backend.controllers;
 
-import com.ticketseller.backend.dto.request.auth.ChangePasswordCodeRequest;
-import com.ticketseller.backend.dto.request.auth.ChangePasswordRequest;
-import com.ticketseller.backend.dto.request.auth.LoginRequest;
-import com.ticketseller.backend.dto.request.auth.EmailPasswordChangeRequest;
+import com.ticketseller.backend.dto.request.auth.*;
 import com.ticketseller.backend.dto.response.ApiResponse;
 import com.ticketseller.backend.dto.response.auth.LoginResponse;
-import com.ticketseller.backend.entity.User;
+import com.ticketseller.backend.dto.response.auth.RegisterResponse;
+import com.ticketseller.backend.enums.Role;
 import com.ticketseller.backend.services.AuthService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +31,30 @@ public class AuthController {
                         .operationResultData(loginResponse)
                         .build());
 
+    }
+
+    @PostMapping("/register/event-organizer")
+    public ResponseEntity<ApiResponse<RegisterResponse>> registerEventOrganizer(@Valid @RequestBody RegisterRequest registerRequest) {
+        RegisterResponse registerResponse = authService.register(registerRequest.getEmail(), registerRequest.getPassword(),
+                Role.EVENT_ORGANIZER, registerRequest.getName(), registerRequest.getPhone(), registerRequest.getIBAN(),
+                registerRequest.getCompanyName(), registerRequest.getBirthDate());
+
+        return ResponseEntity.ok(
+                ApiResponse.<RegisterResponse>builder()
+                        .operationResultData(registerResponse)
+                        .build());
+    }
+
+    @PostMapping("/register/user")
+    public ResponseEntity<ApiResponse<RegisterResponse>> registerNormalUser(@Valid @RequestBody RegisterRequest registerRequest) {
+        RegisterResponse registerResponse = authService.register(registerRequest.getEmail(), registerRequest.getPassword(),
+                Role.USER, registerRequest.getName(), registerRequest.getPhone(), null,
+                null, registerRequest.getBirthDate());
+
+        return ResponseEntity.ok(
+                ApiResponse.<RegisterResponse>builder()
+                        .operationResultData(registerResponse)
+                        .build());
     }
 
 //    @PostMapping("/logout")
