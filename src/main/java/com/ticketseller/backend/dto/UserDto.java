@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Builder
@@ -25,5 +27,21 @@ public class UserDto {
 
     @NotNull @NotBlank
     private String role;
+
+    @NotNull @NotBlank
+    private String phone;
+
+    @NotNull
+    private LocalDateTime registeredDate;
+
+    @NotNull
+    private LocalDateTime birthDate;
+
+    // Can be null
+    private String IBAN;
+
+    // Can be null
+    private String companyName;
+
 
 }

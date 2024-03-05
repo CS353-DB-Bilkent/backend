@@ -1,7 +1,7 @@
 package com.ticketseller.backend.enums;
 
 public enum Role {
-    EVENT_OWNER,
+    EVENT_ORGANIZER,
     USER,
     ADMIN,
     SUPER_ADMIN,
