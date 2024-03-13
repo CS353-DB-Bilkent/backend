@@ -56,19 +56,19 @@ INSERT INTO users (email, password, name, phone, registered_date, IBAN, company_
 
 INSERT INTO tickets (event_id, user_id, seat_id, price, status, ticket_type) VALUES
      (1, 1, 'A1', 90.00, 'SOLD', 'PREMIUM'),
-     (2, 2, 'B2', 50.00, 'AVAILABLE', 'REGULAR'),
-     (3, 3, 'C3', 75.00, 'RESERVED', 'PREMIUM');
+     (1, 2, 'B2', 50.00, 'AVAILABLE', 'REGULAR'),
+     (1, 3, 'C3', 75.00, 'RESERVED', 'PREMIUM');
 
-INSERT INTO wallets (wallet_id, balance, user_id) VALUES
-     (1, 1500.00, 2),
-     (2, 2200.50, 3);
+INSERT INTO wallets (balance, user_id) VALUES
+     (1500.00, 2),
+     (2200.50, 3);
 
-INSERT INTO transactions (transaction_id, wallet_id, transaction_amount, transaction_type, transaction_date) VALUES
-    (1, 1, 200.00, 'WITHDRAWAL', '2022-01-16'),
-    (2, 1, 50.00, 'DEPOSIT', '2022-01-20'),
-    (3, 1, 100.00, 'WITHDRAWAL', '2022-01-25');
+INSERT INTO transactions (wallet_id, transaction_amount, transaction_type, transaction_date) VALUES
+    (1, 200.00, 'WITHDRAWAL', '2022-01-16'),
+    (1, 50.00, 'DEPOSIT', '2022-01-20'),
+    (1, 100.00, 'WITHDRAWAL', '2022-01-25');
 
-INSERT INTO transactions (transaction_id, wallet_id, transaction_amount, transaction_type, transaction_date) VALUES
-    (4, 2, 300.00, 'DEPOSIT', '2022-02-21'),
-    (5, 2, 70.00, 'WITHDRAWAL', '2022-02-25'),
-    (6, 2, 150.00, 'DEPOSIT', '2022-03-01');
+INSERT INTO transactions (wallet_id, transaction_amount, transaction_type, transaction_date) VALUES
+    (2, 300.00, 'DEPOSIT', '2022-02-21'),
+    (2, 70.00, 'WITHDRAWAL', '2022-02-25'),
+    (2, 150.00, 'DEPOSIT', '2022-03-01');

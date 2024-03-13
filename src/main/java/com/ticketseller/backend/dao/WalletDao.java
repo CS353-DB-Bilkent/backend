@@ -23,10 +23,19 @@ public class WalletDao {
         CustomSqlParameters params = CustomSqlParameters.create();
         params.put("balance", wallet.getBalance());
         params.put("user_id", wallet.getUserId());
+
+        String sql = "INSERT INTO WALLETS (balance, user_id) "
+                + "VALUES (:balance, :user_id)";
+
+        jdbcTemplate.update(sql, params);
+    }
+
+    public void updateBalance(Wallet wallet, Long amount) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("balance", wallet.getBalance() + amount);
         params.put("wallet_id", wallet.getWalletId());
 
-        String sql = "INSERT INTO WALLETS (balance, user_id, wallet_id) "
-                + "VALUES (:balance, :user_id, :wallet_id)";
+        String sql = "UPDATE WALLETS SET balance = :balance WHERE wallet_id = :wallet_id";
 
         jdbcTemplate.update(sql, params);
     }
@@ -49,6 +58,30 @@ public class WalletDao {
                         .userId(rsw.getLong("user_id"))
                         .build();
                 }));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<Wallet> getWalletByUserId(Long userId) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("user_id", userId);
+
+        String sql =
+            "SELECT * " +
+             "FROM WALLETS w WHERE w.user_id = :user_id";
+
+        try {
+
+            return Optional.of(jdbcTemplate.queryForObject(sql, params, (rs, rnum) -> {
+                ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                return Wallet.builder()
+                        .walletId(rsw.getLong("wallet_id"))
+                        .balance(rsw.getLong("balance"))
+                        .userId(rsw.getLong("user_id"))
+                        .build();
+            }));
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }

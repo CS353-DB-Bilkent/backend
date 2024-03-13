@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -51,9 +52,36 @@ public class TransactionDao {
                         .walletId(rsw.getLong("wallet_id"))
                         .transactionAmount(rsw.getLong("transaction_amount"))
                         .transactionType(TransactionType.getTransactionTypeFromStringValue(rsw.getString("transaction_type")))
-                        .transactionDate(rsw.getLong("transaction_date"))
+                        .transactionDate(rsw.getLocalDateTime("transaction_date"))
                         .build();
                 }));
+
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<List<Transaction>> getTransactionsByWalletId(Long walletId) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("wallet_id", walletId);
+
+        String sql =
+                "SELECT * " +
+                        "FROM TRANSACTIONS t WHERE t.wallet_id = :wallet_id";
+
+        try {
+
+            return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
+                ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                return Transaction.builder()
+                        .transactionId(rsw.getLong("transaction_id"))
+                        .walletId(rsw.getLong("wallet_id"))
+                        .transactionAmount(rsw.getLong("transaction_amount"))
+                        .transactionType(TransactionType.getTransactionTypeFromStringValue(rsw.getString("transaction_type")))
+                        .transactionDate(rsw.getLocalDateTime("transaction_date"))
+                        .build();
+            }));
 
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();

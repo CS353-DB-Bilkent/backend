@@ -26,8 +26,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final JwtTokenUtil jwtTokenUtil;
     private final UserDao userDao;
+    private final WalletService walletService;
+
+    private final JwtTokenUtil jwtTokenUtil;
     private final PasswordEncoder passwordEncoder;
 
     public LoginResponse login(String email, String password) {
@@ -68,6 +70,13 @@ public class AuthService {
                 .build();
 
         userDao.saveUser(user);
+
+        Optional<User> insertedUser = userDao.getUserByEmail(email);
+
+        if (insertedUser.isEmpty())
+            throw new UserRuntimeException("User could not have been created", ErrorCodes.NO_SUCH_USER, HttpStatus.NOT_FOUND);
+
+        walletService.saveNewWalletForUser(insertedUser.get().getUserId());
 
         String accessToken = jwtTokenUtil.generateAccessToken(user);
 

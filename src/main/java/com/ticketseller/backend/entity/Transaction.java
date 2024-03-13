@@ -5,6 +5,9 @@ import com.ticketseller.backend.enums.TransactionType;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 
 @Getter
 @Setter
@@ -24,8 +27,6 @@ public class Transaction extends BaseEntity {
     @NotNull
     private TransactionType transactionType;
 
-    @NotNull
-    private Long transactionDate;
-
+    private LocalDateTime transactionDate;
 }
 

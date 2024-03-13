@@ -1,6 +1,7 @@
 package com.ticketseller.backend.services;
 
 import com.ticketseller.backend.dao.UserDao;
+import com.ticketseller.backend.dao.WalletDao;
 import com.ticketseller.backend.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
