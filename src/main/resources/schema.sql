@@ -2,6 +2,8 @@
 
 DROP TABLE IF EXISTS users CASCADE; -- remove this once we have data to work with :)
 DROP TABLE IF EXISTS tickets CASCADE; -- remove this once we have data to work with :)
+DROP TABLE IF EXISTS wallets CASCADE; -- remove this once we have data to work with :)
+DROP TABLE IF EXISTS transactions CASCADE; -- remove this once we have data to work with :)
 
 -- combine all the users into one schema, differentiate via role. This way, it's easier to manage in code and we are not
 -- building the next facebook, so who cares.
@@ -29,7 +31,24 @@ CREATE TABLE tickets (
      FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
--- I'll hash the passwords later. Remind me if not done by 8th week of the semester.
+-- merge relation into wallet entity
+CREATE TABLE wallets (
+    wallet_id SERIAL PRIMARY KEY,
+    balance DECIMAL(10, 2), -- 2 decimals for currency
+    user_id INT, -- fk
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- merge relation into transaction entity
+CREATE TABLE transactions (
+     transaction_id SERIAL PRIMARY KEY,
+     wallet_id INT, -- fk
+     transaction_amount DECIMAL(10, 2), -- Assuming 2 decimal places for currency
+     transaction_type VARCHAR(100), -- Assuming a varchar to describe the type like 'debit', 'credit'
+     transaction_date DATE,
+     FOREIGN KEY (wallet_id) REFERENCES wallets(wallet_id)
+);
+
 INSERT INTO users (email, password, name, phone, registered_date, IBAN, company_name, role, birth_date) VALUES
      ('admin@example.com', 'securepassword', 'Admin User', '555-357-0100', '2024-01-01', NULL, NULL, 'ADMIN', '2000-01-01'),
      ('organizer@example.com', 'securepassword', 'Event Organizer', '555-333-0101', '2024-01-02', 'TR330006100519786457841326', 'EventOrg Co.', 'EVENT_ORGANIZER', '2000-01-02'),
@@ -39,3 +58,17 @@ INSERT INTO tickets (event_id, user_id, seat_id, price, status, ticket_type) VAL
      (1, 1, 'A1', 90.00, 'SOLD', 'PREMIUM'),
      (2, 2, 'B2', 50.00, 'AVAILABLE', 'REGULAR'),
      (3, 3, 'C3', 75.00, 'RESERVED', 'PREMIUM');
+
+INSERT INTO wallets (wallet_id, balance, user_id) VALUES
+     (1, 1500.00, 2),
+     (2, 2200.50, 3);
+
+INSERT INTO transactions (transaction_id, wallet_id, transaction_amount, transaction_type, transaction_date) VALUES
+    (1, 1, 200.00, 'WITHDRAWAL', '2022-01-16'),
+    (2, 1, 50.00, 'DEPOSIT', '2022-01-20'),
+    (3, 1, 100.00, 'WITHDRAWAL', '2022-01-25');
+
+INSERT INTO transactions (transaction_id, wallet_id, transaction_amount, transaction_type, transaction_date) VALUES
+    (4, 2, 300.00, 'DEPOSIT', '2022-02-21'),
+    (5, 2, 70.00, 'WITHDRAWAL', '2022-02-25'),
+    (6, 2, 150.00, 'DEPOSIT', '2022-03-01');

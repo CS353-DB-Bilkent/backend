@@ -2,6 +2,8 @@ package com.ticketseller.backend.entity;
 
 import com.ticketseller.backend.dto.UserDto;
 import com.ticketseller.backend.enums.Role;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +12,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 
 @Getter
@@ -22,18 +23,24 @@ import java.util.Date;
 public class User extends BaseEntity {
     private Long userId;
 
+    @NotNull
     private String name;
 
+    @NotNull @Email
     private String email;
 
+    @NotNull
     private String password;
 
     private Role role;
 
+    @NotNull
     private String phone;
 
+    @NotNull
     private LocalDateTime registeredDate;
 
+    @NotNull
     private LocalDateTime birthDate;
 
     private String IBAN;

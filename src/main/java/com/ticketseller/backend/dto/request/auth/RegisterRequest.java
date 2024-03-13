@@ -1,5 +1,6 @@
 package com.ticketseller.backend.dto.request.auth;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class RegisterRequest {
 
-    @NotBlank @NotNull
+    @NotBlank @NotNull @Email
     private String email;
 
     @NotBlank @NotNull
