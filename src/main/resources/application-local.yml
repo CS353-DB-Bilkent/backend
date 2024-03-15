@@ -20,9 +20,9 @@ spring:
     password: admin
 
   datasource:
-    url: xxx
-    username: xxx
-    password: xxx
+    url: jdbc:postgresql://awseb-e-y3aupdntca-stack-awsebrdsdatabase-rk6chm3kvbrd.c2w7fttokzfc.eu-central-1.rds.amazonaws.com:5432/postgres
+    username: dbuser1
+    password: eHrD1By1rfwQglD
     driver-class-name: org.postgresql.Driver
 
   sql:
