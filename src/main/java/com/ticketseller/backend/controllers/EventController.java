@@ -15,10 +15,9 @@ import org.springframework.http.HttpStatus;
 public class EventController {
     private final JwtTokenUtil jwtTokenUtil;
     private final EventService eventService;
-    @PostMapping("/create/{guid}")
+    @PostMapping("/create")
     public ResponseEntity<String> createEvent(
             @RequestHeader("Authorization") String token,
-            @PathVariable("guid") String guid,
             @RequestBody EventDTO eventDTO) {
         if (!jwtTokenUtil.validateToken(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
@@ -26,10 +25,9 @@ public class EventController {
         eventService.createEvent(eventDTO);
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Endpoint not implemented yet");
     }
-    @PutMapping("update/{guid}")
+    @PutMapping("/update")
     public ResponseEntity<String> updateEvent(
             @RequestHeader("Authorization") String token,
-            @PathVariable("guid") String guid,
             @RequestBody EventDTO eventDTO) {
 
         // Validate JWT token
