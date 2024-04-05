@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Optional;
 
 @Slf4j
@@ -26,8 +25,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final JwtTokenUtil jwtTokenUtil;
     private final UserDao userDao;
+    private final TransactionService walletService;
+
+    private final JwtTokenUtil jwtTokenUtil;
     private final PasswordEncoder passwordEncoder;
 
     public LoginResponse login(String email, String password) {
@@ -49,7 +50,7 @@ public class AuthService {
                 .build();
     }
 
-    public RegisterResponse register(String email, String password, Role role, String name, String phone, String IBAN, String companyName, LocalDateTime birthDate) {
+    public RegisterResponse register(String email, String password, Role role, String name, String phone, String IBAN, String companyName, LocalDateTime birthDate, Double salary) {
         Optional<User> optionalUser = userDao.getUserByEmailOrPhone(email, phone);
 
         if (optionalUser.isPresent())
@@ -61,13 +62,19 @@ public class AuthService {
                 .role(role)
                 .name(name)
                 .phone(phone)
-                .registeredDate(LocalDateTime.now())
-                .birthDate(birthDate)
                 .IBAN(IBAN)
                 .companyName(companyName)
+                .birthDate(birthDate)
+                .registeredDate(LocalDateTime.now())
+                .salary(salary)
                 .build();
 
         userDao.saveUser(user);
+
+        Optional<User> insertedUser = userDao.getUserByEmail(email);
+
+        if (insertedUser.isEmpty())
+            throw new UserRuntimeException("User could not have been created", ErrorCodes.NO_SUCH_USER, HttpStatus.NOT_FOUND);
 
         String accessToken = jwtTokenUtil.generateAccessToken(user);
 

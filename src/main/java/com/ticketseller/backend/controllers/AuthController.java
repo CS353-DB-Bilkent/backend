@@ -37,7 +37,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<RegisterResponse>> registerEventOrganizer(@Valid @RequestBody RegisterRequest registerRequest) {
         RegisterResponse registerResponse = authService.register(registerRequest.getEmail(), registerRequest.getPassword(),
                 Role.EVENT_ORGANIZER, registerRequest.getName(), registerRequest.getPhone(), registerRequest.getIBAN(),
-                registerRequest.getCompanyName(), registerRequest.getBirthDate());
+                registerRequest.getCompanyName(), registerRequest.getBirthDate(), null);
 
         return ResponseEntity.ok(
                 ApiResponse.<RegisterResponse>builder()
@@ -49,7 +49,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<RegisterResponse>> registerNormalUser(@Valid @RequestBody RegisterRequest registerRequest) {
         RegisterResponse registerResponse = authService.register(registerRequest.getEmail(), registerRequest.getPassword(),
                 Role.USER, registerRequest.getName(), registerRequest.getPhone(), null,
-                null, registerRequest.getBirthDate());
+                null, registerRequest.getBirthDate(), null);
 
         return ResponseEntity.ok(
                 ApiResponse.<RegisterResponse>builder()

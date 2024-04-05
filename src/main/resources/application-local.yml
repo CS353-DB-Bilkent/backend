@@ -17,12 +17,13 @@ spring:
       max-request-size: 10MB
 
   admin:
+    email: superadmin@superadmin.bilkent.edu
     password: admin
 
   datasource:
-    url: xxx
-    username: xxx
-    password: xxx
+    url: 123
+    username: 123
+    password: 123
     driver-class-name: org.postgresql.Driver
 
   sql:

@@ -2,8 +2,8 @@ package com.ticketseller.backend.dao;
 
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import com.ticketseller.backend.core.CustomJdbcTemplate;
@@ -14,38 +14,50 @@ import com.ticketseller.backend.enums.Role;
 
 import lombok.RequiredArgsConstructor;
 
+import static java.util.Objects.nonNull;
+
 @RequiredArgsConstructor
 @Repository
 public class UserDao {
 
     private final CustomJdbcTemplate jdbcTemplate;
 
-    public void saveUser(User user) {
+    public void insertUserIfNotExists(User user) {
+        if (getUserByEmail(user.getEmail()).isPresent()) {
+            return;
+        }
 
+        saveUser(user);
+    }
+
+    public void saveUser(User user) {
         CustomSqlParameters params = CustomSqlParameters.create();
-        params.put("name", user.getName());
+
         params.put("email", user.getEmail());
+        params.put("name", user.getName());
         params.put("password", user.getPassword());
         params.put("role", user.getRole().name());
-        params.put("phone", user.getPhone());
-        params.put("registered_date", user.getRegisteredDate());
         params.put("birth_date", user.getBirthDate());
+        params.put("registered_date", user.getRegisteredDate());
+        params.put("phone", user.getPhone());
         params.put("IBAN", user.getIBAN());
         params.put("company_name", user.getCompanyName());
+        params.put("salary", user.getSalary());
 
-        String sql = "INSERT INTO USERS (name, email, password, role, phone, registered_date, birth_date, IBAN, company_name) "
-                + "VALUES (:name, :email, :password, :role, :phone, :registered_date, :birth_date, :IBAN, :company_name)";
+        String sql =
+            "INSERT INTO USERS (EMAIL, NAME, PASSWORD, ROLE, BIRTH_DATE, REGISTERED_DATE, PHONE, IBAN, COMPANY_NAME, SALARY) " +
+            "VALUES (:email, :name, :password, :role, :birth_date, :registered_date, :phone, :IBAN, :company_name, :salary)";
 
         jdbcTemplate.update(sql, params);
     }
 
     public Optional<User> getUserByUserId(Long userId) {
         CustomSqlParameters params = CustomSqlParameters.create();
-        params.put("user_id", userId);
+        params.put("USER_ID", userId);
 
         String sql =
             "SELECT * " +
-             "FROM USERS u WHERE u.user_id = :user_id";
+             "FROM USERS u WHERE u.USER_ID = :USER_ID";
 
         try {
 
@@ -53,18 +65,19 @@ public class UserDao {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
                 return User.builder()
-                        .userId(rsw.getLong("user_id"))
-                        .email(rsw.getString("email"))
-                        .name(rsw.getString("name"))
-                        .password(rsw.getString("password"))
-                        .role(Role.getRoleFromStringValue(rsw.getString("role")))
-                        .birthDate(rsw.getLocalDateTime("birth_date"))
-                        .registeredDate(rsw.getLocalDateTime("registered_date"))
-                        .phone(rsw.getString("phone"))
+                        .userId(rsw.getLong("USER_ID"))
+                        .email(rsw.getString("EMAIL"))
+                        .name(rsw.getString("NAME"))
+                        .password(rsw.getString("PASSWORD"))
+                        .role(Role.getRoleFromStringValue(rsw.getString("ROLE")))
+                        .birthDate(rsw.getLocalDateTime("BIRTH_DATE"))
+                        .registeredDate(rsw.getLocalDateTime("REGISTERED_DATE"))
+                        .phone(rsw.getString("PHONE"))
                         .IBAN(rsw.isNull("IBAN") ? null : rsw.getString("IBAN"))
-                        .companyName(rsw.isNull("company_name") ? null : rsw.getString("company_name"))
+                        .companyName(rsw.isNull("COMPANY_NAME") ? null : rsw.getString("COMPANY_NAME"))
+                        .salary(rsw.isNull("SALARY") ? null : rsw.getDouble("SALARY"))
                         .build();
-                }));
+            }));
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
@@ -76,7 +89,7 @@ public class UserDao {
 
         String sql =
                 "SELECT * " +
-                        "FROM USERS u WHERE u.email = :email";
+                        "FROM USERS u WHERE u.EMAIL = :email";
 
         try {
 
@@ -84,16 +97,17 @@ public class UserDao {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
                 return User.builder()
-                        .userId(rsw.getLong("user_id"))
-                        .email(rsw.getString("email"))
-                        .name(rsw.getString("name"))
-                        .password(rsw.getString("password"))
-                        .role(Role.getRoleFromStringValue(rsw.getString("role")))
-                        .birthDate(rsw.getLocalDateTime("birth_date"))
-                        .registeredDate(rsw.getLocalDateTime("registered_date"))
-                        .phone(rsw.getString("phone"))
+                        .userId(rsw.getLong("USER_ID"))
+                        .email(rsw.getString("EMAIL"))
+                        .name(rsw.getString("NAME"))
+                        .password(rsw.getString("PASSWORD"))
+                        .role(Role.getRoleFromStringValue(rsw.getString("ROLE")))
+                        .birthDate(rsw.getLocalDateTime("BIRTH_DATE"))
+                        .registeredDate(rsw.getLocalDateTime("REGISTERED_DATE"))
+                        .phone(rsw.getString("PHONE"))
                         .IBAN(rsw.isNull("IBAN") ? null : rsw.getString("IBAN"))
-                        .companyName(rsw.isNull("company_name") ? null : rsw.getString("company_name"))
+                        .companyName(rsw.isNull("COMPANY_NAME") ? null : rsw.getString("COMPANY_NAME"))
+                        .salary(rsw.isNull("SALARY") ? null : rsw.getDouble("SALARY"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -108,7 +122,7 @@ public class UserDao {
 
         String sql =
                 "SELECT * " +
-                        "FROM USERS u WHERE u.email = :email OR u.phone = :phone";
+                        "FROM USERS u WHERE u.EMAIL = :email OR u.PHONE = :phone";
 
         try {
 
@@ -116,16 +130,17 @@ public class UserDao {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
                 return User.builder()
-                        .userId(rsw.getLong("user_id"))
-                        .email(rsw.getString("email"))
-                        .name(rsw.getString("name"))
-                        .password(rsw.getString("password"))
-                        .role(Role.getRoleFromStringValue(rsw.getString("role")))
-                        .birthDate(rsw.getLocalDateTime("birth_date"))
-                        .registeredDate(rsw.getLocalDateTime("registered_date"))
-                        .phone(rsw.getString("phone"))
+                        .userId(rsw.getLong("USER_ID"))
+                        .email(rsw.getString("EMAIL"))
+                        .name(rsw.getString("NAME"))
+                        .password(rsw.getString("PASSWORD"))
+                        .role(Role.getRoleFromStringValue(rsw.getString("ROLE")))
+                        .birthDate(rsw.getLocalDateTime("BIRTH_DATE"))
+                        .registeredDate(rsw.getLocalDateTime("REGISTERED_DATE"))
+                        .phone(rsw.getString("PHONE"))
                         .IBAN(rsw.isNull("IBAN") ? null : rsw.getString("IBAN"))
-                        .companyName(rsw.isNull("company_name") ? null : rsw.getString("company_name"))
+                        .companyName(rsw.isNull("COMPANY_NAME") ? null : rsw.getString("COMPANY_NAME"))
+                        .salary(rsw.isNull("SALARY") ? null : rsw.getDouble("SALARY"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
