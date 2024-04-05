@@ -1,74 +1,129 @@
 -- noinspection SqlNoDataSourceInspectionForFile
 
-DROP TABLE IF EXISTS users CASCADE; -- remove this once we have data to work with :)
-DROP TABLE IF EXISTS tickets CASCADE; -- remove this once we have data to work with :)
-DROP TABLE IF EXISTS wallets CASCADE; -- remove this once we have data to work with :)
-DROP TABLE IF EXISTS transactions CASCADE; -- remove this once we have data to work with :)
+-- DROP TABLE IF EXISTS users CASCADE; -- remove this once we have data to work with :)
+-- DROP TABLE IF EXISTS tickets CASCADE; -- remove this once we have data to work with :)
+-- DROP TABLE IF EXISTS wallets CASCADE; -- remove this once we have data to work with :)
+-- DROP TABLE IF EXISTS transactions CASCADE; -- remove this once we have data to work with :)
 
 -- combine all the users into one schema, differentiate via role. This way, it's easier to manage in code and we are not
 -- building the next facebook, so who cares.
-CREATE TABLE users (
-    user_id         SERIAL PRIMARY KEY,
-    email           VARCHAR(255) NOT NULL UNIQUE,
-    password        VARCHAR(255) NOT NULL,
-    name            VARCHAR(255),
-    phone           VARCHAR(20),
-    registered_date DATE,
-    IBAN            VARCHAR(34),
-    company_name    VARCHAR(255),
-    role VARCHAR(255) NOT NULL,
-    birth_date DATe NOT NULL
+
+CREATE TABLE IF NOT EXISTS USERS (
+    USER_ID SERIAL PRIMARY KEY,
+    NAME VARCHAR(128) NOT NULL,
+    ROLE VARCHAR(128) NOT NULL,
+    EMAIL VARCHAR(128) UNIQUE NOT NULL,
+    PASSWORD VARCHAR(512) NOT NULL,
+    PHONE VARCHAR(15),
+    BIRTH_DATE DATE NOT NULL,
+    REGISTERED_DATE DATE NOT NULL,
+    BALANCE DECIMAL(10,2),
+    COMPANY_NAME VARCHAR(255),
+    IBAN VARCHAR(34),
+    SALARY DECIMAL(10,2)
 );
 
-CREATE TABLE tickets (
-     ticket_id SERIAL PRIMARY KEY,
-     event_id INT NOT NULL,
-     user_id INT NOT NULL, -- Each ticket belongs to only one user (or at least bought by)
-     seat_id VARCHAR(255) NOT NULL,
-     price DECIMAL(10, 2) NOT NULL,
-     status VARCHAR(255) NOT NULL,
-     ticket_type VARCHAR(255) NOT NULL, -- update this once fully determined, or just leave like this who cares...
-     FOREIGN KEY (user_id) REFERENCES users (user_id)
+CREATE TABLE IF NOT EXISTS EVENT (
+    EVENT_ID SERIAL PRIMARY KEY,
+    NAME VARCHAR(128) NOT NULL,
+    START_DATE DATE NOT NULL,
+    END_DATE DATE NOT NULL,
+    DETAILS TEXT,
+    TICKET_PRICE DECIMAL(10,2) NOT NULL,
+    EVENT_TYPE VARCHAR(50) NOT NULL,
+    MIN_AGE_ALLOWED INT NOT NULL,
+    NUMBER_OF_TICKETS INT NOT NULL,
+    EVENT_STATUS VARCHAR(50),
+    ORGANIZER_ID INT REFERENCES USERS(USER_ID)
 );
 
--- merge relation into wallet entity
-CREATE TABLE wallets (
-    wallet_id SERIAL PRIMARY KEY,
-    balance DECIMAL(10, 2), -- 2 decimals for currency
-    user_id INT, -- fk
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+CREATE TABLE IF NOT EXISTS VENUE (
+    VENUE_ID SERIAL PRIMARY KEY,
+    NAME VARCHAR(255) NOT NULL,
+    CAPACITY INT NOT NULL,
+    CITY INT NOT NULL,
+    ADDRESS TEXT NOT NULL
 );
 
--- merge relation into transaction entity
-CREATE TABLE transactions (
-     transaction_id SERIAL PRIMARY KEY,
-     wallet_id INT, -- fk
-     transaction_amount DECIMAL(10, 2), -- Assuming 2 decimal places for currency
-     transaction_type VARCHAR(100), -- Assuming a varchar to describe the type like 'debit', 'credit'
-     transaction_date DATE,
-     FOREIGN KEY (wallet_id) REFERENCES wallets(wallet_id)
+CREATE TABLE IF NOT EXISTS REVIEW (
+    REVIEW_ID SERIAL PRIMARY KEY,
+    RATING INT CHECK (RATING BETWEEN 1 AND 5),
+    DESCRIPTION VARCHAR(255),
+    REVIEW_DATE DATE NOT NULL
 );
 
-INSERT INTO users (email, password, name, phone, registered_date, IBAN, company_name, role, birth_date) VALUES
-     ('admin@example.com', 'securepassword', 'Admin User', '555-357-0100', '2024-01-01', NULL, NULL, 'ADMIN', '2000-01-01'),
-     ('organizer@example.com', 'securepassword', 'Event Organizer', '555-333-0101', '2024-01-02', 'TR330006100519786457841326', 'EventOrg Co.', 'EVENT_ORGANIZER', '2000-01-02'),
-     ('user@example.com', 'securepassword', 'Normal User', '555-111-0102', '2024-01-03', NULL, NULL, 'NORMAL', '2000-01-03');
+CREATE TABLE IF NOT EXISTS REPORT (
+    REPORT_ID SERIAL PRIMARY KEY,
+    REPORT_DATE DATE NOT NULL,
+    TOTAL_SALES INT NOT NULL,
+    TOTAL_REVENUE DECIMAL(10,2) NOT NULL,
+    ORGANIZER_ID INT REFERENCES USERS(USER_ID),
+    EVENT_ID INT REFERENCES EVENT(EVENT_ID)
+);
 
-INSERT INTO tickets (event_id, user_id, seat_id, price, status, ticket_type) VALUES
-     (1, 1, 'A1', 90.00, 'SOLD', 'PREMIUM'),
-     (1, 2, 'B2', 50.00, 'AVAILABLE', 'REGULAR'),
-     (1, 3, 'C3', 75.00, 'RESERVED', 'PREMIUM');
+CREATE TABLE IF NOT EXISTS BRAND (
+    BRAND_ID SERIAL PRIMARY KEY,
+    BRAND_NAME VARCHAR(128) NOT NULL
+);
 
-INSERT INTO wallets (balance, user_id) VALUES
-     (1500.00, 2),
-     (2200.50, 3);
+CREATE TABLE IF NOT EXISTS EVENT_PERSON (
+    EVENT_PERSON_ID SERIAL PRIMARY KEY,
+    EVENT_PERSON_NAME VARCHAR(128) NOT NULL,
+    EVENT_ID INT REFERENCES EVENT(EVENT_ID),
+    BRAND_ID INT REFERENCES BRAND(BRAND_ID)
+);
 
-INSERT INTO transactions (wallet_id, transaction_amount, transaction_type, transaction_date) VALUES
-    (1, 200.00, 'WITHDRAWAL', '2022-01-16'),
-    (1, 50.00, 'DEPOSIT', '2022-01-20'),
-    (1, 100.00, 'WITHDRAWAL', '2022-01-25');
+CREATE TABLE IF NOT EXISTS HOSTS (
+    EVENT_PERSON_ID INT REFERENCES EVENT_PERSON(EVENT_PERSON_ID),
+    EVENT_ID INT NOT NULL,
+    BRAND_ID INT NOT NULL,
+    PRIMARY KEY (EVENT_ID, BRAND_ID, EVENT_PERSON_ID),
+    FOREIGN KEY (EVENT_ID) REFERENCES EVENT(EVENT_ID),
+    FOREIGN KEY (BRAND_ID) REFERENCES BRAND(BRAND_ID)
+);
 
-INSERT INTO transactions (wallet_id, transaction_amount, transaction_type, transaction_date) VALUES
-    (2, 300.00, 'DEPOSIT', '2022-02-21'),
-    (2, 70.00, 'WITHDRAWAL', '2022-02-25'),
-    (2, 150.00, 'DEPOSIT', '2022-03-01');
+CREATE TABLE IF NOT EXISTS TICKET (
+    TICKET_ID SERIAL PRIMARY KEY,
+    USER_ID INT REFERENCES USERS(USER_ID),
+    EVENT_ID INT REFERENCES EVENT(EVENT_ID),
+    PURCHASE_DATE DATE NOT NULL,
+    PRICE DECIMAL(10,2) NOT NULL,
+    TICKET_STATUS VARCHAR(50) NOT NULL,
+    QR_CODE TEXT,
+    BUYER_VISIBLE BOOLEAN NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS TRANSACTION (
+    TRANSACTION_ID SERIAL PRIMARY KEY,
+    TRANSACTION_AMOUNT DECIMAL(10,2) NOT NULL,
+    TRANSACTION_TYPE VARCHAR(50) NOT NULL,
+    TRANSACTION_DATE DATE NOT NULL,
+    USER_ID INT REFERENCES USERS(USER_ID),
+    EVENT_ID INT REFERENCES EVENT(EVENT_ID)
+);
+
+-- CREATE TABLE BUYS (
+--     USER_ID INT,
+--     TICKET_ID INT,
+--     PRIMARY KEY (USER_ID, TICKET_ID),
+--     FOREIGN KEY (USER_ID) REFERENCES USER(USER_ID),
+--     FOREIGN KEY (TICKET_ID) REFERENCES TICKET(TICKET_ID)
+-- );
+
+CREATE TABLE IF NOT EXISTS NOTIFICATION (
+    NOTIFICATION_ID SERIAL PRIMARY KEY,
+    DESCRIPTION VARCHAR(255),
+    NOTIFICATION_DATE DATE NOT NULL,
+    VIEWED BOOLEAN NOT NULL,
+    NOTIFICATION_TYPE VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS NOTIFIED (
+    NOTIFICATION_ID INT,
+    USER_ID INT,
+    EVENT_ID INT,
+    PRIMARY KEY (NOTIFICATION_ID, USER_ID, EVENT_ID),
+    FOREIGN KEY (NOTIFICATION_ID) REFERENCES NOTIFICATION(NOTIFICATION_ID),
+    FOREIGN KEY (USER_ID) REFERENCES USERS(USER_ID),
+    FOREIGN KEY (EVENT_ID) REFERENCES EVENT(EVENT_ID)
+);

@@ -4,7 +4,6 @@ import com.ticketseller.backend.core.CustomJdbcTemplate;
 import com.ticketseller.backend.core.CustomSqlParameters;
 import com.ticketseller.backend.core.ResultSetWrapper;
 import com.ticketseller.backend.entity.Transaction;
-import com.ticketseller.backend.entity.Wallet;
 import com.ticketseller.backend.enums.TransactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -23,13 +22,15 @@ public class TransactionDao {
 
         CustomSqlParameters params = CustomSqlParameters.create();
 
-        params.put("wallet_id", transaction.getWalletId());
         params.put("transaction_amount", transaction.getTransactionAmount());
         params.put("transaction_type", transaction.getTransactionType().name());
         params.put("transaction_date", transaction.getTransactionDate());
+        params.put("user_id", transaction.getUserId());
+        params.put("event_id", transaction.getEventId());
 
-        String sql = "INSERT INTO TRANSACTIONS (wallet_id, transaction_amount, transaction_type, transaction_date) "
-                + "VALUES (:wallet_id, :transaction_amount, :transaction_type, :transaction_date)";
+        String sql =
+            "INSERT INTO TRANSACTION (TRANSACTION_AMOUNT, TRANSACTION_TYPE, TRANSACTION_DATE, USER_ID, EVENT_ID) " +
+            "VALUES (:transaction_amount, :transaction_type, :transaction_date, :user_id, :event_id)";
 
         jdbcTemplate.update(sql, params);
     }
@@ -40,7 +41,7 @@ public class TransactionDao {
 
         String sql =
             "SELECT * " +
-             "FROM TRANSACTIONS t WHERE t.transaction_id = :transaction_id";
+             "FROM TRANSACTION t WHERE t.TRANSACTION_ID = :transaction_id";
 
         try {
 
@@ -48,12 +49,13 @@ public class TransactionDao {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
                 return Transaction.builder()
-                        .transactionId(rsw.getLong("transaction_id"))
-                        .walletId(rsw.getLong("wallet_id"))
-                        .transactionAmount(rsw.getLong("transaction_amount"))
-                        .transactionType(TransactionType.getTransactionTypeFromStringValue(rsw.getString("transaction_type")))
-                        .transactionDate(rsw.getLocalDateTime("transaction_date"))
-                        .build();
+                    .transactionId(rsw.getLong("TRANSACTION_ID"))
+                    .eventId(rsw.getLong("EVENT_ID"))
+                    .userId(rsw.getLong("USER_ID"))
+                    .transactionAmount(rsw.getLong("TRANSACTION_AMOUNT"))
+                    .transactionType(TransactionType.getTransactionTypeFromStringValue(rsw.getString("TRANSACTION_TYPE")))
+                    .transactionDate(rsw.getLocalDateTime("TRANSACTION_DATE"))
+                    .build();
                 }));
 
         } catch (EmptyResultDataAccessException e) {
@@ -61,13 +63,13 @@ public class TransactionDao {
         }
     }
 
-    public Optional<List<Transaction>> getTransactionsByWalletId(Long walletId) {
+    public Optional<List<Transaction>> getTransactionsByUserId(Long userId) {
         CustomSqlParameters params = CustomSqlParameters.create();
-        params.put("wallet_id", walletId);
+        params.put("user_id", userId);
 
         String sql =
-                "SELECT * " +
-                        "FROM TRANSACTIONS t WHERE t.wallet_id = :wallet_id";
+            "SELECT * " +
+             "FROM TRANSACTION t WHERE t.USER_ID = :user_id";
 
         try {
 
@@ -75,11 +77,12 @@ public class TransactionDao {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
                 return Transaction.builder()
-                        .transactionId(rsw.getLong("transaction_id"))
-                        .walletId(rsw.getLong("wallet_id"))
-                        .transactionAmount(rsw.getLong("transaction_amount"))
-                        .transactionType(TransactionType.getTransactionTypeFromStringValue(rsw.getString("transaction_type")))
-                        .transactionDate(rsw.getLocalDateTime("transaction_date"))
+                        .transactionId(rsw.getLong("TRANSACTION_ID"))
+                        .eventId(rsw.getLong("EVENT_ID"))
+                        .userId(rsw.getLong("USER_ID"))
+                        .transactionAmount(rsw.getLong("TRANSACTION_AMOUNT"))
+                        .transactionType(TransactionType.getTransactionTypeFromStringValue(rsw.getString("TRANSACTION_TYPE")))
+                        .transactionDate(rsw.getLocalDateTime("TRANSACTION_DATE"))
                         .build();
             }));
 

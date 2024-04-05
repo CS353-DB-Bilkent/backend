@@ -33,4 +33,6 @@ public class RegisterRequest {
     private String IBAN;
 
     private String companyName;
+
+    private Double salary;
 }

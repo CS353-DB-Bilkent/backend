@@ -18,7 +18,8 @@ spring:
       max-request-size: 10MB
 
   admin:
-    password: ${ADMIN_PASSWORD} # default admin password
+    email: ${ADMIN_EMAIL:superadmin@superadmin.bilkent.edu} # default admin email
+    password: ${ADMIN_PASSWORD:admin} # default admin password
 
   datasource:
     url: ${DB_URL}

@@ -1,11 +1,9 @@
 package com.ticketseller.backend.entity;
 
-import com.ticketseller.backend.dto.WalletDto;
 import com.ticketseller.backend.enums.TransactionType;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
@@ -19,7 +17,10 @@ public class Transaction extends BaseEntity {
     private Long transactionId;
 
     @NotNull
-    private Long walletId;
+    private Long eventId;
+
+    @NotNull
+    private Long userId;
 
     @NotNull
     private Long transactionAmount;

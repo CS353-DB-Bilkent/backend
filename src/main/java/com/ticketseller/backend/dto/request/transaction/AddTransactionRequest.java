@@ -1,10 +1,8 @@
-package com.ticketseller.backend.dto.request.wallet;
+package com.ticketseller.backend.dto.request.transaction;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Builder
 @Getter

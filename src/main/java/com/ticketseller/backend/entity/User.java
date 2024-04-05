@@ -1,6 +1,5 @@
 package com.ticketseller.backend.entity;
 
-import com.ticketseller.backend.dto.UserDto;
 import com.ticketseller.backend.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -47,19 +46,6 @@ public class User extends BaseEntity {
 
     private String companyName;
 
-    public UserDto toUserDto() {
-
-        return UserDto.builder()
-                .email(email)
-                .userId(userId)
-                .role(role.name())
-                .name(name)
-                .phone(phone)
-                .registeredDate(registeredDate)
-                .birthDate(birthDate)
-                .IBAN(IBAN)
-                .companyName(companyName)
-                .build();
-    }
+    private Double salary;
 }
 
