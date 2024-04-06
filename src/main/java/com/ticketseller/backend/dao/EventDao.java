@@ -9,6 +9,7 @@ import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.EventType;
 import com.ticketseller.backend.enums.Role;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
@@ -16,11 +17,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Objects.isNull;
+import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
+
 @RequiredArgsConstructor
 @Repository
 public class EventDao {
 
     private final CustomJdbcTemplate jdbcTemplate;
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public void saveEvent(Event event) {
         CustomSqlParameters params = CustomSqlParameters.create();
@@ -45,14 +52,14 @@ public class EventDao {
 
     public Optional<List<Event>> getFilteredEvents(String searchTerm, String artistName, String brandName, String venueName, String location, String type, Integer minAgeAllowed, LocalDateTime startDate) {
         CustomSqlParameters params = CustomSqlParameters.create();
-        params.put("search_term", searchTerm);
-        params.put("artist_name", artistName);
-        params.put("brand_name", brandName);
-        params.put("venue_name", venueName);
-        params.put("location", location);
-        params.put("type", type);
-        params.put("start_date", startDate);
-        params.put("min_age_allowed", minAgeAllowed);
+        params.put("search_term", isNull(searchTerm) ? "" : searchTerm);
+        params.put("artist_name", isNull(artistName) ? "" : artistName);
+        params.put("brand_name", isNull(brandName) ? "" : brandName);
+        params.put("venue_name", isNull(venueName) ? "" : venueName);
+        params.put("location", isNull(location) ? "" : location);
+        params.put("type", isNull(type) ? "" : type);
+        // params.put("start_date", isNull(startDate) ? null : Timestamp.valueOf(startDate));
+        params.put("min_age_allowed", isNull(minAgeAllowed) ? 0 : minAgeAllowed);
 
 
         String sql = "SELECT DISTINCT e.* " +
@@ -63,12 +70,12 @@ public class EventDao {
                 "LEFT JOIN VENUE ve ON e.VENUE_ID = ve.VENUE_ID " +
                 "WHERE " +
                 "(LOWER(e.NAME) LIKE LOWER(CONCAT('%', :search_term, '%')) OR :search_term IS NULL) " +
-                "AND (LOWER(ep.EVENT_PERSON_NAME) = LOWER(:artist_name) OR :artist_name IS NULL) " +
-                "AND (LOWER(b.BRAND_NAME) = LOWER(:brand_name) OR :brand_name IS NULL) " +
-                "AND (LOWER(ve.NAME) = LOWER(:venue_name) OR :venue_name IS NULL) " +
+                "AND (LOWER(ep.EVENT_PERSON_NAME) LIKE LOWER(CONCAT('%', :artist_name, '%')) OR :artist_name IS NULL) " +
+                "AND (LOWER(b.BRAND_NAME) LIKE LOWER(CONCAT('%', :brand_name, '%')) OR :brand_name IS NULL) " +
+                "AND (LOWER(ve.NAME) LIKE LOWER(CONCAT('%', :venue_name, '%')) OR :venue_name IS NULL) " +
                 "AND (LOWER(ve.ADDRESS) LIKE LOWER(CONCAT('%', :location, '%')) OR :location IS NULL) " +
-                "AND (e.EVENT_TYPE = LOWER(:type) OR :type IS NULL) " +
-                "AND (e.START_DATE > :start_date OR :start_date IS NULL) " +
+                "AND (LOWER(e.EVENT_TYPE) LIKE LOWER(CONCAT('%', :type, '%')) OR :type IS NULL) " +
+                // "AND (e.START_DATE > :start_date OR :start_date IS NULL) " +
                 "AND (e.MIN_AGE_ALLOWED >= :min_age_allowed OR :min_age_allowed IS NULL) " +
                 "AND e.EVENT_STATUS = 'ACTIVE' " +
                 "ORDER BY e.START_DATE DESC " +

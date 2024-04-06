@@ -25,5 +25,9 @@ public class DatesUtils {
         return LocalDateTime.now(ZoneId.of(ZoneId.SHORT_IDS.get("EAT")));
     }
 
+    public static String getStringLocalDateTime(LocalDateTime localDateTime) {
+        return localDateTime.toString();
+    }
+
 
 }
