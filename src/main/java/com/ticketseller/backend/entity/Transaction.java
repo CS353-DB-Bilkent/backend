@@ -23,7 +23,7 @@ public class Transaction extends BaseEntity {
     private Long userId;
 
     @NotNull
-    private Long transactionAmount;
+    private Double transactionAmount;
 
     @NotNull
     private TransactionType transactionType;

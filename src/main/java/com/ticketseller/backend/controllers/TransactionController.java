@@ -8,9 +8,7 @@ import com.ticketseller.backend.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,5 +30,32 @@ public class TransactionController {
                         .build()
         );
     }
+
+    @PostMapping("/deposit/{amount}")
+    public ResponseEntity<ApiResponse<?>> deposit(HttpServletRequest request, @RequestParam Double amount) {
+        User user = (User) request.getAttribute("user");
+
+        transactionService.deposit(user.getUserId(), amount);
+
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .operationResultData(null)
+                        .build()
+        );
+    }
+
+    @PostMapping("/withdraw/{amount}")
+    public ResponseEntity<ApiResponse<?>> withdraw(HttpServletRequest request, @RequestParam Double amount) {
+        User user = (User) request.getAttribute("user");
+
+        transactionService.withdraw(user.getUserId(), amount);
+
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .operationResultData(null)
+                        .build()
+        );
+    }
+
 
 }

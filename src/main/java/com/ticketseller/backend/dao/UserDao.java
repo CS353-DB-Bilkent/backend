@@ -43,10 +43,11 @@ public class UserDao {
         params.put("IBAN", user.getIBAN());
         params.put("company_name", user.getCompanyName());
         params.put("salary", user.getSalary());
+        params.put("balance", nonNull(user.getBalance()) ? user.getBalance() : 0.0);
 
         String sql =
-            "INSERT INTO USERS (EMAIL, NAME, PASSWORD, ROLE, BIRTH_DATE, REGISTERED_DATE, PHONE, IBAN, COMPANY_NAME, SALARY) " +
-            "VALUES (:email, :name, :password, :role, :birth_date, :registered_date, :phone, :IBAN, :company_name, :salary)";
+            "INSERT INTO USERS (EMAIL, NAME, PASSWORD, ROLE, BIRTH_DATE, REGISTERED_DATE, PHONE, IBAN, COMPANY_NAME, SALARY, BALANCE) " +
+            "VALUES (:email, :name, :password, :role, :birth_date, :registered_date, :phone, :IBAN, :company_name, :salary, :balance)";
 
         jdbcTemplate.update(sql, params);
     }
@@ -76,6 +77,7 @@ public class UserDao {
                         .IBAN(rsw.isNull("IBAN") ? null : rsw.getString("IBAN"))
                         .companyName(rsw.isNull("COMPANY_NAME") ? null : rsw.getString("COMPANY_NAME"))
                         .salary(rsw.isNull("SALARY") ? null : rsw.getDouble("SALARY"))
+                        .balance(rsw.getDouble("BALANCE"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -108,6 +110,7 @@ public class UserDao {
                         .IBAN(rsw.isNull("IBAN") ? null : rsw.getString("IBAN"))
                         .companyName(rsw.isNull("COMPANY_NAME") ? null : rsw.getString("COMPANY_NAME"))
                         .salary(rsw.isNull("SALARY") ? null : rsw.getDouble("SALARY"))
+                        .balance(rsw.getDouble("BALANCE"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -141,6 +144,7 @@ public class UserDao {
                         .IBAN(rsw.isNull("IBAN") ? null : rsw.getString("IBAN"))
                         .companyName(rsw.isNull("COMPANY_NAME") ? null : rsw.getString("COMPANY_NAME"))
                         .salary(rsw.isNull("SALARY") ? null : rsw.getDouble("SALARY"))
+                        .balance(rsw.getDouble("BALANCE"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -159,6 +163,20 @@ public class UserDao {
             "WHERE USER_ID = :USER_ID";
 
         jdbcTemplate.update(sql, params);
+    }
+
+    public void updateBalance(Long userId, Double balance) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("USER_ID", userId);
+        params.put("BALANCE", balance);
+
+        String sql =
+            "UPDATE USERS " +
+            "SET BALANCE = BALANCE + :BALANCE " +
+            "WHERE USER_ID = :USER_ID";
+
+        jdbcTemplate.update(sql, params);
+
     }
 
     // Uncomment as needed

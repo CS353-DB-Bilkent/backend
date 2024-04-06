@@ -47,5 +47,8 @@ public class User extends BaseEntity {
     private String companyName;
 
     private Double salary;
+
+    @NotNull
+    private Double balance;
 }
 

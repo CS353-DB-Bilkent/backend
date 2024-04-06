@@ -18,6 +18,7 @@ public class TransactionDao {
 
     private final CustomJdbcTemplate jdbcTemplate;
 
+    // Send in event_id when this is a transaction for an event
     public void saveTransaction(Transaction transaction) {
 
         CustomSqlParameters params = CustomSqlParameters.create();
@@ -52,7 +53,7 @@ public class TransactionDao {
                     .transactionId(rsw.getLong("TRANSACTION_ID"))
                     .eventId(rsw.getLong("EVENT_ID"))
                     .userId(rsw.getLong("USER_ID"))
-                    .transactionAmount(rsw.getLong("TRANSACTION_AMOUNT"))
+                    .transactionAmount(rsw.getDouble("TRANSACTION_AMOUNT"))
                     .transactionType(TransactionType.getTransactionTypeFromStringValue(rsw.getString("TRANSACTION_TYPE")))
                     .transactionDate(rsw.getLocalDateTime("TRANSACTION_DATE"))
                     .build();
@@ -80,7 +81,7 @@ public class TransactionDao {
                         .transactionId(rsw.getLong("TRANSACTION_ID"))
                         .eventId(rsw.getLong("EVENT_ID"))
                         .userId(rsw.getLong("USER_ID"))
-                        .transactionAmount(rsw.getLong("TRANSACTION_AMOUNT"))
+                        .transactionAmount(rsw.getDouble("TRANSACTION_AMOUNT"))
                         .transactionType(TransactionType.getTransactionTypeFromStringValue(rsw.getString("TRANSACTION_TYPE")))
                         .transactionDate(rsw.getLocalDateTime("TRANSACTION_DATE"))
                         .build();

@@ -66,6 +66,7 @@ public class AuthService {
                 .birthDate(birthDate)
                 .registeredDate(LocalDateTime.now())
                 .salary(salary)
+                .balance(0.0)
                 .build();
 
         userDao.saveUser(user);
