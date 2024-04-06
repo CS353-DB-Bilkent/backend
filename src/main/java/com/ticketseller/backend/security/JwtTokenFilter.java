@@ -1,6 +1,7 @@
 package com.ticketseller.backend.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ticketseller.backend.annotations.NoAuthRequired;
 import com.ticketseller.backend.constants.ErrorCodes;
 import com.ticketseller.backend.dao.UserDao;
 import com.ticketseller.backend.dto.response.ApiResponse;
@@ -14,10 +15,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -28,7 +33,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
 
-    private final List<String> EXCLUDE_URL_STARTS_WITH = Arrays.asList("/health", "/public", "/auth", "/documentation", "/swagger-ui");
+    private final List<String> EXCLUDE_URL_STARTS_WITH =
+            Arrays.asList("/health", "/public", "/auth", "/documentation", "/swagger-ui");
     private final List<String> INCLUDE_URLS = Arrays.asList("/auth/logout", "/auth/change-password");
     private final String EMPTY_URL = "/";
 
@@ -37,6 +43,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;
 
     private final UserDao userDao;
+
+    private final ApplicationContext applicationContext;
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request,
@@ -69,11 +77,25 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(@NotNull HttpServletRequest request) throws ServletException {
-        return  INCLUDE_URLS.stream().noneMatch(include -> request.getServletPath().equals(include))
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+
+        if (INCLUDE_URLS.stream().noneMatch(include -> request.getServletPath().equals(include))
                 && EXCLUDE_URL_STARTS_WITH.stream().anyMatch(exclude -> request.getServletPath().startsWith(exclude)
-                    || request.getServletPath().equals(EMPTY_URL));
+                || request.getServletPath().equals(EMPTY_URL))) {
+            return true;
+        }
+
+        try {
+            RequestMappingHandlerMapping handlerMapping = applicationContext.getBean(RequestMappingHandlerMapping.class);
+            HandlerMethod handlerMethod = (HandlerMethod) handlerMapping.getHandler(request).getHandler();
+
+            return handlerMethod.getMethodAnnotation(NoAuthRequired.class) != null ||
+                    handlerMethod.getBeanType().getAnnotation(NoAuthRequired.class) != null;
+        } catch (Exception e) {
+            return false;
+        }
     }
+
 
     private boolean hasAuthorizationBearer(HttpServletRequest request) {
         String header = request.getHeader("Authorization");

@@ -26,7 +26,6 @@ import java.util.Optional;
 public class AuthService {
 
     private final UserDao userDao;
-    private final TransactionService walletService;
 
     private final JwtTokenUtil jwtTokenUtil;
     private final PasswordEncoder passwordEncoder;
@@ -94,9 +93,7 @@ public class AuthService {
         if (passwordEncoder.matches(newPassword, user.getPassword()))
             throw new UserRuntimeException("New password cannot be same as the old password!", ErrorCodes.BAD_REQUEST, HttpStatus.BAD_REQUEST);
 
-        user.setPassword(passwordEncoder.encode(newPassword));
-
-        // userRepository.save(user);
+        userDao.updatePassword(user.getUserId(), passwordEncoder.encode(newPassword));
     }
 
 }

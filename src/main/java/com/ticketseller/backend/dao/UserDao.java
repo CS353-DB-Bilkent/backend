@@ -148,6 +148,19 @@ public class UserDao {
         }
     }
 
+    public void updatePassword(Long userId, String password) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("USER_ID", userId);
+        params.put("PASSWORD", password);
+
+        String sql =
+            "UPDATE USERS " +
+            "SET PASSWORD = :PASSWORD " +
+            "WHERE USER_ID = :USER_ID";
+
+        jdbcTemplate.update(sql, params);
+    }
+
     // Uncomment as needed
 //    public Optional<User> getUserByEmailOrUsername(String emailOrUsername) {
 //        CustomSqlParameters params = CustomSqlParameters.create();

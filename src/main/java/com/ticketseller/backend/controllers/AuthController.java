@@ -6,6 +6,7 @@ import com.ticketseller.backend.dto.response.auth.LoginResponse;
 import com.ticketseller.backend.dto.response.auth.RegisterResponse;
 import com.ticketseller.backend.enums.Role;
 import com.ticketseller.backend.services.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.ticketseller.backend.entity.User;
 
 
 @RequiredArgsConstructor
@@ -57,6 +59,19 @@ public class AuthController {
                         .build());
     }
 
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse<?>> changePassword(HttpServletRequest request, @Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
+        User user = (User) request.getAttribute("user");
+
+        authService.changePassword(user, changePasswordRequest.getOldPassword(), changePasswordRequest.getNewPassword());
+
+        return ResponseEntity.ok(
+                ApiResponse.builder()
+                        .operationResultData(null)
+                        .build()
+        );
+    }
+
 //    @PostMapping("/logout")
 //    public ResponseEntity<ApiResponse<?>> logout(HttpServletRequest request) {
 //        String accessToken = (String) request.getAttribute("accessToken");
@@ -69,18 +84,7 @@ public class AuthController {
 //
 //    }
 //
-//    @PostMapping("/change-password")
-//    public ResponseEntity<ApiResponse<?>> changePassword(HttpServletRequest request, @Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
-//        User user = (User) request.getAttribute("user");
-//
-//        authService.changePassword(user, changePasswordRequest.getOldPassword(), changePasswordRequest.getNewPassword());
-//
-//        return ResponseEntity.ok(
-//                ApiResponse.builder()
-//                        .operationResultData(null)
-//                        .build()
-//        );
-//    }
+
 //
 //    @PostMapping("/email-password-change-code")
 //    public ResponseEntity<ApiResponse<?>> emailPasswordChange(@Valid @RequestBody EmailPasswordChangeRequest emailPasswordChangeRequest) {

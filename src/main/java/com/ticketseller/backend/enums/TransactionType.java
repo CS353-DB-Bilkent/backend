@@ -3,6 +3,8 @@ package com.ticketseller.backend.enums;
 public enum TransactionType {
     DEPOSIT,
     WITHDRAWAL,
+    EVENT_BUY,
+    EVENT_REFUND,
     UNRECOGNIZED;
 
     public static TransactionType getTransactionTypeFromStringValue(String value) {
