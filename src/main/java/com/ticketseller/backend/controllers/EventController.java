@@ -85,7 +85,9 @@ public class EventController {
                                 filterEventsRequest.getLocation(),
                                 filterEventsRequest.getType(),
                                 filterEventsRequest.getMinAgeAllowed(),
-                                filterEventsRequest.getStartDate()
+                                filterEventsRequest.getStartDate(),
+                                filterEventsRequest.getOrderBy(),
+                                filterEventsRequest.getOrderDirection()
                         ))
                         .build()
         );

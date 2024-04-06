@@ -20,5 +20,7 @@ public class FilterEventsRequest {
     private String type;
     private Integer minAgeAllowed;
     private LocalDateTime startDate;
+    private String orderBy;
+    private String orderDirection;
 
 }

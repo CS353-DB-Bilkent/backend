@@ -50,7 +50,7 @@ public class EventDao {
         jdbcTemplate.update(sql, params);
     }
 
-    public Optional<List<Event>> getFilteredEvents(String searchTerm, String artistName, String brandName, String venueName, String location, String type, Integer minAgeAllowed, LocalDateTime startDate) {
+    public Optional<List<Event>> getFilteredEvents(String searchTerm, String artistName, String brandName, String venueName, String location, String type, Integer minAgeAllowed, LocalDateTime startDate, String orderBy, String orderDirection) {
         CustomSqlParameters params = CustomSqlParameters.create();
         params.put("search_term", isNull(searchTerm) ? "" : searchTerm);
         params.put("artist_name", isNull(artistName) ? "" : artistName);
@@ -60,7 +60,6 @@ public class EventDao {
         params.put("type", isNull(type) ? "" : type);
         // params.put("start_date", isNull(startDate) ? null : Timestamp.valueOf(startDate));
         params.put("min_age_allowed", isNull(minAgeAllowed) ? 0 : minAgeAllowed);
-
 
         String sql = "SELECT DISTINCT e.* " +
                 "FROM EVENT e " +
@@ -78,7 +77,7 @@ public class EventDao {
                 // "AND (e.START_DATE > :start_date OR :start_date IS NULL) " +
                 "AND (e.MIN_AGE_ALLOWED >= :min_age_allowed OR :min_age_allowed IS NULL) " +
                 "AND e.EVENT_STATUS = 'ACTIVE' " +
-                "ORDER BY e.START_DATE DESC " +
+                "ORDER BY e." + orderBy + " " + orderDirection + " " +
                 "LIMIT 20";
 
         try {
@@ -97,6 +96,8 @@ public class EventDao {
                         .eventType(EventType.getEventTypeFromStringValue(rsw.getString("EVENT_TYPE")))
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
+                        .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
+                        .venueId(rsw.getLong("VENUE_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -128,6 +129,8 @@ public class EventDao {
                         .eventType(EventType.getEventTypeFromStringValue(rsw.getString("EVENT_TYPE")))
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
+                        .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
+                        .venueId(rsw.getLong("VENUE_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -159,6 +162,8 @@ public class EventDao {
                         .eventType(EventType.getEventTypeFromStringValue(rsw.getString("EVENT_TYPE")))
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
+                        .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
+                        .venueId(rsw.getLong("VENUE_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -190,6 +195,8 @@ public class EventDao {
                         .eventType(EventType.getEventTypeFromStringValue(rsw.getString("EVENT_TYPE")))
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
+                        .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
+                        .venueId(rsw.getLong("VENUE_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {

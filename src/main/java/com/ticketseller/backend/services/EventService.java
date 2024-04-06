@@ -83,8 +83,8 @@ public class EventService {
         return event;
     }
 
-    public List<Event> getFilteredEvents(String searchTerm, String artistName, String brandName, String venueName, String location, String type, Integer minAgeAllowed, LocalDateTime startDate) {
-        return eventDao.getFilteredEvents(searchTerm, artistName, brandName, venueName, location, type, minAgeAllowed, startDate)
+    public List<Event> getFilteredEvents(String searchTerm, String artistName, String brandName, String venueName, String location, String type, Integer minAgeAllowed, LocalDateTime startDate, String orderBy, String orderDirection) {
+        return eventDao.getFilteredEvents(searchTerm, artistName, brandName, venueName, location, type, minAgeAllowed, startDate, orderBy, orderDirection)
                 .orElseThrow(() -> new EventRuntimeException("Events not found", 1, HttpStatus.NOT_FOUND));
     }
 
