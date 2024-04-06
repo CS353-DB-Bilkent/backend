@@ -3,7 +3,7 @@ package com.ticketseller.backend.controllers;
 import com.ticketseller.backend.annotations.NoAuthRequired;
 import com.ticketseller.backend.annotations.RequiredRole;
 import com.ticketseller.backend.dto.request.event.CreateEventRequest;
-import com.ticketseller.backend.dto.request.event.FilterEventstRequest;
+import com.ticketseller.backend.dto.request.event.FilterEventsRequest;
 import com.ticketseller.backend.dto.response.ApiResponse;
 import com.ticketseller.backend.entity.Event;
 import com.ticketseller.backend.entity.User;
@@ -72,20 +72,20 @@ public class EventController {
     }
 
 
-    @GetMapping("/filter")
+    @PostMapping("/filter")
     @NoAuthRequired
-    public ResponseEntity<ApiResponse<List<Event>>> filterEvents(@Valid @RequestBody FilterEventstRequest filterEventstRequest) {
+    public ResponseEntity<ApiResponse<List<Event>>> filterEvents(@Valid @RequestBody FilterEventsRequest filterEventsRequest) {
         return ResponseEntity.ok(
                 ApiResponse.<List<Event>>builder()
                         .operationResultData(eventService.getFilteredEvents(
-                                filterEventstRequest.getSearchTerm(),
-                                filterEventstRequest.getArtistName(),
-                                filterEventstRequest.getBrandName(),
-                                filterEventstRequest.getVenueName(),
-                                filterEventstRequest.getLocation(),
-                                filterEventstRequest.getType(),
-                                filterEventstRequest.getMinAgeAllowed(),
-                                filterEventstRequest.getStartDate()
+                                filterEventsRequest.getSearchTerm(),
+                                filterEventsRequest.getArtistName(),
+                                filterEventsRequest.getBrandName(),
+                                filterEventsRequest.getVenueName(),
+                                filterEventsRequest.getLocation(),
+                                filterEventsRequest.getType(),
+                                filterEventsRequest.getMinAgeAllowed(),
+                                filterEventsRequest.getStartDate()
                         ))
                         .build()
         );

@@ -55,6 +55,15 @@ public class EventService {
             throw new EventRuntimeException("Minimum age allowed is negative", 1, HttpStatus.BAD_REQUEST);
         }
 
+        // First check if venue exists using venueService
+        // If not, throw error which will be caught in frontend. That'll trigger venue creation page.
+        // Create the venue, then send the query again to this function. Now the event will be created.
+        // Also, do the same for artist and brand. However, no need to throw error for those.
+        // Just create the artist and brand if they don't exist.
+        // Lastly, do not forget to insert into hosts relation.
+
+        // Also check whether event tickets outnumber venue capacity. If so, throw error.
+
         Event event = Event.builder()
                 .name(eventName)
                 .details(eventDetails)
@@ -65,6 +74,7 @@ public class EventService {
                 .minAgeAllowed(minAgeAllowed)
                 .eventType(eventTypeEnum)
                 .eventStatus(EventStatus.WAITING_APPROVAL)
+                .venueId(1L) // Change this when you implement venue service
                 .organizerId(organizerId)
                 .build();
 

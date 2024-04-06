@@ -50,6 +50,9 @@ public class Event extends BaseEntity {
     @NotNull
     private Long organizerId;
 
+    @NotNull
+    private Long venueId;
+
 
 
 

@@ -1,6 +1,5 @@
 package com.ticketseller.backend.dto.request.event;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -11,7 +10,7 @@ import java.time.LocalDateTime;
 @ToString
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class FilterEventstRequest {
+public class FilterEventsRequest {
 
     private String searchTerm;
     private String artistName;

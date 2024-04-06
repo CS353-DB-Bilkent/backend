@@ -34,11 +34,11 @@ public class EventDao {
         params.put("MIN_AGE_ALLOWED", event.getMinAgeAllowed());
         params.put("EVENT_TYPE", event.getEventType().name());
         params.put("EVENT_STATUS", event.getEventStatus().name());
+        params.put("VENUE_ID", event.getVenueId());
         params.put("ORGANIZER_ID", event.getOrganizerId());
 
-        String sql =
-                "INSERT INTO EVENT (NAME, DETAILS, START_DATE, END_DATE, TICKET_PRICE, NUMBER_OF_TICKETS, MIN_AGE_ALLOWED, EVENT_TYPE, EVENT_STATUS, ORGANIZER_ID) " +
-                        "VALUES (:NAME, :DETAILS, :START_DATE, :END_DATE, :TICKET_PRICE, :NUMBER_OF_TICKETS, :MIN_AGE_ALLOWED, :EVENT_TYPE, :EVENT_STATUS, :ORGANIZER_ID)";
+        String sql = "INSERT INTO EVENT (NAME, DETAILS, START_DATE, END_DATE, TICKET_PRICE, NUMBER_OF_TICKETS, MIN_AGE_ALLOWED, EVENT_TYPE, EVENT_STATUS, VENUE_ID, ORGANIZER_ID) " +
+                "VALUES (:NAME, :DETAILS, :START_DATE, :END_DATE, :TICKET_PRICE, :NUMBER_OF_TICKETS, :MIN_AGE_ALLOWED, :EVENT_TYPE, :EVENT_STATUS, :VENUE_ID, :ORGANIZER_ID)";
 
         jdbcTemplate.update(sql, params);
     }
@@ -51,27 +51,28 @@ public class EventDao {
         params.put("venue_name", venueName);
         params.put("location", location);
         params.put("type", type);
-        params.put("min_age_allowed", minAgeAllowed);
         params.put("start_date", startDate);
+        params.put("min_age_allowed", minAgeAllowed);
 
-        String sql =
-                "SELECT DISTINCT e.* " +
-                        "FROM EVENT e " +
-                        "LEFT JOIN EVENT_PERSON ep ON e.EVENT_ID = ep.EVENT_ID " +
-                        "LEFT JOIN BRAND b ON e.BRAND_ID = b.BRAND_ID " +
-                        "LEFT JOIN VENUE ve ON e.VENUE_ID = ve.VENUE_ID " +
-                        "WHERE " +
-                        "(LOWER(e.NAME) LIKE LOWER('%:search_term%') OR :search_term IS NULL) " +
-                        "AND (LOWER(ep.EVENT_PERSON_NAME) LIKE LOWER(':artist_name') OR ':artist_name' IS NULL) " +
-                        "AND (LOWER(b.BRAND_NAME) LIKE LOWER(':brand_name') OR ':brand_name IS NULL) " +
-                        "AND (LOWER(ve.NAME) LIKE LOWER(':venue_name') OR ':venue_name' IS NULL) " +
-                        "AND (LOWER(ve.ADRESS) LIKE LOWER(':location') OR ':location' IS NULL) " +
-                        "AND (e.EVENT_TYPE = LOWER(':type') OR ':type' IS NULL) " +
-                        "AND (DATE(e.START_DATE) = ':start_date' OR ':start_date' IS NULL) " +
-                        "AND (e.MIN_AGE_ALLOWED >= :min_age_allowed OR :min_age_allowed IS NULL) " +
-                        "AND e.EVENT_STATUS = 'ACTIVE' " +
-                        "ORDER BY e.START_DATE DESC " +
-                        "LIMIT 20";
+
+        String sql = "SELECT DISTINCT e.* " +
+                "FROM EVENT e " +
+                "INNER JOIN HOSTS h ON e.EVENT_ID = h.EVENT_ID " +
+                "LEFT JOIN EVENT_PERSON ep ON h.EVENT_PERSON_ID = ep.EVENT_PERSON_ID " +
+                "LEFT JOIN BRAND b ON h.BRAND_ID = b.BRAND_ID " +
+                "LEFT JOIN VENUE ve ON e.VENUE_ID = ve.VENUE_ID " +
+                "WHERE " +
+                "(LOWER(e.NAME) LIKE LOWER(CONCAT('%', :search_term, '%')) OR :search_term IS NULL) " +
+                "AND (LOWER(ep.EVENT_PERSON_NAME) = LOWER(:artist_name) OR :artist_name IS NULL) " +
+                "AND (LOWER(b.BRAND_NAME) = LOWER(:brand_name) OR :brand_name IS NULL) " +
+                "AND (LOWER(ve.NAME) = LOWER(:venue_name) OR :venue_name IS NULL) " +
+                "AND (LOWER(ve.ADDRESS) LIKE LOWER(CONCAT('%', :location, '%')) OR :location IS NULL) " +
+                "AND (e.EVENT_TYPE = LOWER(:type) OR :type IS NULL) " +
+                "AND (e.START_DATE > :start_date OR :start_date IS NULL) " +
+                "AND (e.MIN_AGE_ALLOWED >= :min_age_allowed OR :min_age_allowed IS NULL) " +
+                "AND e.EVENT_STATUS = 'ACTIVE' " +
+                "ORDER BY e.START_DATE DESC " +
+                "LIMIT 20";
 
         try {
 

@@ -30,6 +30,7 @@ public class RegisterRequest {
     @NotNull
     private LocalDateTime birthDate;
 
+    @NotNull
     private String IBAN;
 
     private String companyName;

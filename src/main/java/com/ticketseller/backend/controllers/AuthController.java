@@ -50,7 +50,7 @@ public class AuthController {
     @PostMapping("/register/user")
     public ResponseEntity<ApiResponse<RegisterResponse>> registerNormalUser(@Valid @RequestBody RegisterRequest registerRequest) {
         RegisterResponse registerResponse = authService.register(registerRequest.getEmail(), registerRequest.getPassword(),
-                Role.USER, registerRequest.getName(), registerRequest.getPhone(), null,
+                Role.USER, registerRequest.getName(), registerRequest.getPhone(), registerRequest.getIBAN(),
                 null, registerRequest.getBirthDate(), null);
 
         return ResponseEntity.ok(
