@@ -7,6 +7,7 @@ import com.ticketseller.backend.dto.request.event.FilterEventsRequest;
 import com.ticketseller.backend.dto.response.ApiResponse;
 import com.ticketseller.backend.entity.Event;
 import com.ticketseller.backend.entity.User;
+import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.Role;
 import com.ticketseller.backend.services.EventService;
 import com.ticketseller.backend.services.UserService;
@@ -107,7 +108,22 @@ public class EventController {
         // ...
     }
 
+
+    @GetMapping("/approve_event/{eventId}")
+    @RequiredRole({ Role.ADMIN })
+    public ResponseEntity<ApiResponse<Event>> approveEvent(@PathVariable Long eventId) {
+        Event event = eventService.getEventById(eventId);
+        if (event == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        event.setEventStatus(EventStatus.ACTIVE);
+        // Not sure if we need to add the event again. //eventService.saveEvent(event);
+
+        return ResponseEntity.ok(ApiResponse.<Event>builder()
+                .operationResultData(event)
+                .build());
+    }
+
     // Fill in the rest
-
-
 }
