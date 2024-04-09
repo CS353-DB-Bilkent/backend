@@ -109,7 +109,7 @@ public class EventController {
     }
 
 
-    @GetMapping("/approve_event/{eventId}")
+    @GetMapping("/approveEvent/{eventId}")
     @RequiredRole({ Role.ADMIN })
     public ResponseEntity<ApiResponse<Event>> approveEvent(@PathVariable Long eventId) {
         Event event = eventService.getEventById(eventId);
@@ -121,7 +121,7 @@ public class EventController {
                 .operationResultData(event)
                 .build()): ResponseEntity.internalServerError().build();
     }
-    @GetMapping("/reject_event/{eventId}")
+    @GetMapping("/rejectEvent/{eventId}")
     @RequiredRole({ Role.ADMIN })
     public ResponseEntity<ApiResponse<Event>> rejectEvent(@PathVariable Long eventId) {
         Event event = eventService.getEventById(eventId);
