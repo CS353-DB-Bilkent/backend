@@ -117,12 +117,22 @@ public class EventController {
             return ResponseEntity.notFound().build();
         }
 
-        event.setEventStatus(EventStatus.ACTIVE);
-        // Not sure if we need to add the event again. //eventService.saveEvent(event);
-
-        return ResponseEntity.ok(ApiResponse.<Event>builder()
+        return eventService.approveEvent(event.getEventId()) ? ResponseEntity.ok(ApiResponse.<Event>builder()
                 .operationResultData(event)
-                .build());
+                .build()): ResponseEntity.internalServerError().build();
+    }
+    @GetMapping("/reject_event/{eventId}")
+    @RequiredRole({ Role.ADMIN })
+    public ResponseEntity<ApiResponse<Event>> rejectEvent(@PathVariable Long eventId) {
+        Event event = eventService.getEventById(eventId);
+        if (event == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+
+        return eventService.rejectEvent(event.getEventId()) ? ResponseEntity.ok(ApiResponse.<Event>builder()
+                .operationResultData(event)
+                .build()): ResponseEntity.internalServerError().build();
     }
 
     // Fill in the rest
