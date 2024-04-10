@@ -10,7 +10,6 @@ import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -67,23 +66,6 @@ public class JwtTokenUtil {
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    public Long getCurrentUserId() {
-        String token = extractTokenFromHeader();
-        if (token != null && validateToken(token)) {
-            return Long.parseLong(parseClaims(token).get("user_id").toString());
-        }
-        return null;
-    }
-
-    private String extractTokenFromHeader() {
-        // Assuming you're getting the token from the Authorization header
-        String headerValue = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
-        if (headerValue != null && headerValue.startsWith("Bearer ")) {
-            return headerValue.substring(7);
-        }
-        return null;
     }
 
 }

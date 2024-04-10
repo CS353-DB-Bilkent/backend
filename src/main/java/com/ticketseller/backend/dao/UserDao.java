@@ -185,7 +185,7 @@ public class UserDao {
         params.put("NAME", newName);
         params.put("EMAIL", newEmail);
         params.put("PHONE", newPhone);
-        String sql = "UPDATE USER " +
+        String sql = "UPDATE USERS " +
                 "SET NAME = :NAME, EMAIL = :EMAIL, PHONE = :PHONE " +
                 "WHERE USER_ID = :USER_ID";
         int rowsAffected = jdbcTemplate.update(sql, params);

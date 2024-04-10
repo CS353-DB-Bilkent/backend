@@ -139,10 +139,10 @@ public class EventController {
     }
     @GetMapping("/getAllTickets/{userId}")
     @RequiredRole({Role.USER})
-    public ResponseEntity<ApiResponse<List<Ticket>>> getTicketsByUserId(@PathVariable Long userId){
+    public ResponseEntity<ApiResponse<List<Ticket>>> getTicketsByUserId(@PathVariable Long userId, javax.servlet.http.HttpServletRequest request){
         return ResponseEntity.ok(
                 ApiResponse.<List<Ticket>>builder()
-                        .operationResultData(ticketService.getTicketsByUserId(userId))
+                        .operationResultData(ticketService.getTicketsByUserId(userId, request))
                         .build()
         );
     }
