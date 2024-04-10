@@ -33,12 +33,12 @@ public class UserController {
     }
     @PostMapping("/{userId}/updateInfo")
     @RequiredRole({Role.USER})
-    public ResponseEntity<ApiResponse<User>> updateInfo(@PathVariable Long userId, @Valid @RequestBody UpdateInfoRequest request) {
+    public ResponseEntity<ApiResponse<User>> updateInfo(@Valid @RequestBody UpdateInfoRequest request, HttpServletRequest requesthttp) {
         String newName = request.getName();
         String newEmail = request.getEmail();
         String newPhone = request.getPhone();
-        User user = userService.getUserById(userId);
-        return userService.updateUser(userId, newName, newEmail, newPhone) ? ResponseEntity.ok(ApiResponse.<User>builder()
+        User user = (User) requesthttp.getAttribute("user");
+        return userService.updateUser(user.getUserId(), newName, newEmail, newPhone) ? ResponseEntity.ok(ApiResponse.<User>builder()
                 .operationResultData(user)
                 .build()): ResponseEntity.internalServerError().build();
     }
