@@ -207,7 +207,7 @@ public class EventDao {
     public boolean approveEvent(Long eventId) {
         CustomSqlParameters params = CustomSqlParameters.create();
         params.put("EVENT_ID", eventId);
-        String sql = "UPDATE EVENT SET STATUS = 'Approved' WHERE EVENT_ID = :EVENT_ID";
+        String sql = "UPDATE EVENT SET EVENT_STATUS = 'ACTIVE' WHERE EVENT_ID = :EVENT_ID";
         int rowsAffected = jdbcTemplate.update(sql, params);
         return rowsAffected > 0;
     }
@@ -215,7 +215,7 @@ public class EventDao {
     public boolean rejectEvent(Long eventId) {
         CustomSqlParameters params = CustomSqlParameters.create();
         params.put("EVENT_ID", eventId);
-        String sql = "UPDATE EVENT SET STATUS = 'Rejected' WHERE EVENT_ID = :EVENT_ID";
+        String sql = "UPDATE EVENT SET EVENT_STATUS = 'REJECTED' WHERE EVENT_ID = :EVENT_ID";
         int rowsAffected = jdbcTemplate.update(sql, params);
         return rowsAffected > 0;
     }

@@ -9,6 +9,7 @@ public enum EventStatus {
     PASSED,
     WAITING_APPROVAL,
     UNAPPROVED,
+    REJECTED,
     UNRECOGNIZED;
 
     public static EventStatus getEventStatusFromStringValue(String value) {
