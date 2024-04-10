@@ -1,8 +1,10 @@
 package com.ticketseller.backend.services;
 
 import com.ticketseller.backend.dao.EventDao;
+import com.ticketseller.backend.dao.ReviewDao;
 import com.ticketseller.backend.dao.UserDao;
 import com.ticketseller.backend.entity.Event;
+import com.ticketseller.backend.entity.Review;
 import com.ticketseller.backend.entity.User;
 import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.EventType;
@@ -26,7 +28,7 @@ import java.util.List;
 public class EventService {
 
     private final EventDao eventDao;
-
+    private final ReviewDao reviewDao;
     public Event saveEvent(String eventName, String eventDetails, LocalDateTime startDate, LocalDateTime endDate, Double ticketPrice, Integer numberOfTickets, String eventType, Integer minAgeAllowed, Long organizerId) {
         EventType eventTypeEnum = EventType.getEventTypeFromStringValue(eventType);
 
@@ -109,5 +111,8 @@ public class EventService {
 
     public boolean rejectEvent(Long eventId){
         return eventDao.rejectEvent(eventId);
+    }
+    public void addReview(Review review){
+        reviewDao.addReview(review);
     }
 }

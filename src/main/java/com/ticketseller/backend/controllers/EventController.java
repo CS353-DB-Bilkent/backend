@@ -6,6 +6,7 @@ import com.ticketseller.backend.dto.request.event.CreateEventRequest;
 import com.ticketseller.backend.dto.request.event.FilterEventsRequest;
 import com.ticketseller.backend.dto.response.ApiResponse;
 import com.ticketseller.backend.entity.Event;
+import com.ticketseller.backend.entity.Review;
 import com.ticketseller.backend.entity.Ticket;
 import com.ticketseller.backend.entity.User;
 import com.ticketseller.backend.enums.EventStatus;
@@ -139,12 +140,18 @@ public class EventController {
     }
     @GetMapping("/getAllTickets/{userId}")
     @RequiredRole({Role.USER})
-    public ResponseEntity<ApiResponse<List<Ticket>>> getTicketsByUserId(@PathVariable Long userId, javax.servlet.http.HttpServletRequest request){
+    public ResponseEntity<ApiResponse<List<Ticket>>> getTicketsByUserId(@PathVariable Long userId, HttpServletRequest request){
         return ResponseEntity.ok(
                 ApiResponse.<List<Ticket>>builder()
                         .operationResultData(ticketService.getTicketsByUserId(userId, request))
                         .build()
         );
     }
+    @PostMapping("/postReview")
+    @RequiredRole({Role.USER})
+    public void postReview(@RequestBody Review review, HttpServletRequest request){
+        eventService.addReview(review); //TODO: userid must be added
+    }
+
     // Fill in the rest
 }
