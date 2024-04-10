@@ -103,4 +103,11 @@ public class EventService {
                 .orElseThrow(() -> new EventRuntimeException("Events not found", 1, HttpStatus.NOT_FOUND));
     }
 
+    public boolean approveEvent(Long eventId){
+        return eventDao.approveEvent(eventId);
+    }
+
+    public boolean rejectEvent(Long eventId){
+        return eventDao.rejectEvent(eventId);
+    }
 }

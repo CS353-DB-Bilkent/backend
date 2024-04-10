@@ -6,9 +6,12 @@ import com.ticketseller.backend.dto.request.event.CreateEventRequest;
 import com.ticketseller.backend.dto.request.event.FilterEventsRequest;
 import com.ticketseller.backend.dto.response.ApiResponse;
 import com.ticketseller.backend.entity.Event;
+import com.ticketseller.backend.entity.Ticket;
 import com.ticketseller.backend.entity.User;
+import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.Role;
 import com.ticketseller.backend.services.EventService;
+import com.ticketseller.backend.services.TicketService;
 import com.ticketseller.backend.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -25,6 +28,7 @@ import java.util.List;
 public class EventController {
 
     private final EventService eventService;
+    private final TicketService ticketService;
 
     @GetMapping("/me")
     @RequiredRole({ Role.EVENT_ORGANIZER })
@@ -107,7 +111,40 @@ public class EventController {
         // ...
     }
 
+
+    @GetMapping("/approveEvent/{eventId}")
+    @RequiredRole({ Role.ADMIN })
+    public ResponseEntity<ApiResponse<Event>> approveEvent(@PathVariable Long eventId) {
+        Event event = eventService.getEventById(eventId);
+        if (event == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return eventService.approveEvent(event.getEventId()) ? ResponseEntity.ok(ApiResponse.<Event>builder()
+                .operationResultData(event)
+                .build()): ResponseEntity.internalServerError().build();
+    }
+    @GetMapping("/rejectEvent/{eventId}")
+    @RequiredRole({ Role.ADMIN })
+    public ResponseEntity<ApiResponse<Event>> rejectEvent(@PathVariable Long eventId) {
+        Event event = eventService.getEventById(eventId);
+        if (event == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+
+        return eventService.rejectEvent(event.getEventId()) ? ResponseEntity.ok(ApiResponse.<Event>builder()
+                .operationResultData(event)
+                .build()): ResponseEntity.internalServerError().build();
+    }
+    @GetMapping("/getAllTickets/{userId}")
+    @RequiredRole({Role.USER})
+    public ResponseEntity<ApiResponse<List<Ticket>>> getTicketsByUserId(@PathVariable Long userId, javax.servlet.http.HttpServletRequest request){
+        return ResponseEntity.ok(
+                ApiResponse.<List<Ticket>>builder()
+                        .operationResultData(ticketService.getTicketsByUserId(userId, request))
+                        .build()
+        );
+    }
     // Fill in the rest
-
-
 }

@@ -96,5 +96,4 @@ public class AuthService {
 
         userDao.updatePassword(user.getUserId(), passwordEncoder.encode(newPassword));
     }
-
 }

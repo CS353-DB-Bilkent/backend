@@ -13,6 +13,7 @@ import org.springframework.cglib.core.Local;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -202,5 +203,20 @@ public class EventDao {
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
+    }
+    public boolean approveEvent(Long eventId) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("EVENT_ID", eventId);
+        String sql = "UPDATE EVENT SET EVENT_STATUS = 'ACTIVE' WHERE EVENT_ID = :EVENT_ID";
+        int rowsAffected = jdbcTemplate.update(sql, params);
+        return rowsAffected > 0;
+    }
+
+    public boolean rejectEvent(Long eventId) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("EVENT_ID", eventId);
+        String sql = "UPDATE EVENT SET EVENT_STATUS = 'REJECTED' WHERE EVENT_ID = :EVENT_ID";
+        int rowsAffected = jdbcTemplate.update(sql, params);
+        return rowsAffected > 0;
     }
 }

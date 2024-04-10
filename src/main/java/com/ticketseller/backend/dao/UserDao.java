@@ -179,6 +179,20 @@ public class UserDao {
 
     }
 
+    public boolean updateUser(Long userId, String newName, String newEmail, String newPhone) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("USER_ID", userId);
+        params.put("NAME", newName);
+        params.put("EMAIL", newEmail);
+        params.put("PHONE", newPhone);
+        String sql = "UPDATE USERS " +
+                "SET NAME = :NAME, EMAIL = :EMAIL, PHONE = :PHONE " +
+                "WHERE USER_ID = :USER_ID";
+        int rowsAffected = jdbcTemplate.update(sql, params);
+        return rowsAffected > 0;
+    }
+
+
     // Uncomment as needed
 //    public Optional<User> getUserByEmailOrUsername(String emailOrUsername) {
 //        CustomSqlParameters params = CustomSqlParameters.create();
