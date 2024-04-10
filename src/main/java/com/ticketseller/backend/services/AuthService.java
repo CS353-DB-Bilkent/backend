@@ -96,5 +96,7 @@ public class AuthService {
 
         userDao.updatePassword(user.getUserId(), passwordEncoder.encode(newPassword));
     }
-
+    public Long getCurrentUserId(){
+        return jwtTokenUtil.getCurrentUserId();
+    }
 }

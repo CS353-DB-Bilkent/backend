@@ -29,8 +29,8 @@ public class TicketDao {
         String sql =
                 "SELECT TICKET.*" +
                         " FROM TICKET" +
-                        " JOIN USER ON TICKET.USER_ID = USER.USER_ID" +
-                        " WHERE USER.USER_ID = :USER_ID;";
+                        " JOIN USERS ON TICKET.USER_ID = USERS.USER_ID" +
+                        " WHERE USERS.USER_ID = :USER_ID;";
 
 
         try {
@@ -41,7 +41,7 @@ public class TicketDao {
                         .eventId(rsw.getLong("EVENT_ID"))
                         .ticketId(rsw.getLong("TICKET_ID"))
                         .userId(rsw.getLong("USER_ID"))
-                        .purchaseDate(rsw.getLocalDateTime("PURCHASED_DATE"))
+                        .purchaseDate(rsw.getLocalDateTime("PURCHASE_DATE"))
                         .price(rsw.getDouble("PRICE"))
                         .ticketStatus(TicketStatus.getTicketStatusFromStringValue(rsw.getString("TICKET_STATUS")))
                         .qrCode(rsw.getString("QR_CODE"))
