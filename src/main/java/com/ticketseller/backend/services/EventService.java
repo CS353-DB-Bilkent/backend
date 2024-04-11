@@ -1,8 +1,11 @@
 package com.ticketseller.backend.services;
 
 import com.ticketseller.backend.dao.EventDao;
+import com.ticketseller.backend.dao.ReviewDao;
 import com.ticketseller.backend.dao.UserDao;
 import com.ticketseller.backend.entity.Event;
+import com.ticketseller.backend.entity.Review;
+import com.ticketseller.backend.entity.Ticket;
 import com.ticketseller.backend.entity.User;
 import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.EventType;
@@ -26,7 +29,7 @@ import java.util.List;
 public class EventService {
 
     private final EventDao eventDao;
-
+    private final ReviewDao reviewDao;
     public Event saveEvent(String eventName, String eventDetails, LocalDateTime startDate, LocalDateTime endDate, Double ticketPrice, Integer numberOfTickets, String eventType, Integer minAgeAllowed, Long organizerId) {
         EventType eventTypeEnum = EventType.getEventTypeFromStringValue(eventType);
 
@@ -109,5 +112,19 @@ public class EventService {
 
     public boolean rejectEvent(Long eventId){
         return eventDao.rejectEvent(eventId);
+    }
+    public void addReview(Review review){
+        reviewDao.addReview(review);
+    }
+
+    public List<Event> getAllMyEvents(Long userId) {
+        return eventDao.getMyEvents(userId)
+                .orElseThrow(() -> new EventRuntimeException("Events not found", 1, HttpStatus.NOT_FOUND));
+    }
+    public boolean reportEvent(Long eventId, Long organizerId){
+        return eventDao.createReport(eventId, organizerId);
+    }
+    public boolean cancelEvent(Long eventId){
+        return eventDao.cancelEvent(eventId);
     }
 }

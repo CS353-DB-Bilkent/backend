@@ -6,6 +6,7 @@ import com.ticketseller.backend.dto.request.event.CreateEventRequest;
 import com.ticketseller.backend.dto.request.event.FilterEventsRequest;
 import com.ticketseller.backend.dto.response.ApiResponse;
 import com.ticketseller.backend.entity.Event;
+import com.ticketseller.backend.entity.Review;
 import com.ticketseller.backend.entity.Ticket;
 import com.ticketseller.backend.entity.User;
 import com.ticketseller.backend.enums.EventStatus;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 
 @RequiredArgsConstructor
@@ -139,12 +141,44 @@ public class EventController {
     }
     @GetMapping("/getAllTickets/{userId}")
     @RequiredRole({Role.USER})
-    public ResponseEntity<ApiResponse<List<Ticket>>> getTicketsByUserId(@PathVariable Long userId, javax.servlet.http.HttpServletRequest request){
+    public ResponseEntity<ApiResponse<List<Ticket>>> getTicketsByUserId(@PathVariable Long userId, HttpServletRequest request){
         return ResponseEntity.ok(
                 ApiResponse.<List<Ticket>>builder()
                         .operationResultData(ticketService.getTicketsByUserId(userId, request))
                         .build()
         );
+    }
+    @PostMapping("/postReview")
+    @RequiredRole({Role.USER})
+    public void postReview(@RequestBody Review review, HttpServletRequest request){
+        review.setUserId(((User)request.getAttribute("user")).getUserId());
+        eventService.addReview(review); //TODO: userid must be added
+    }
+
+    @GetMapping("/getAllMyEvents")
+    @RequiredRole({Role.EVENT_ORGANIZER})
+    public ResponseEntity<ApiResponse<List<Event>>> getAllMyEvents(HttpServletRequest request){
+
+        return ResponseEntity.ok(
+                ApiResponse.<List<Event>>builder()
+                        .operationResultData(eventService.getAllMyEvents(((User)request.getAttribute("user")).getUserId()))
+                        .build()
+        );
+    }
+
+    @PostMapping("/reportEvent/{eventId}")
+    @RequiredRole({Role.EVENT_ORGANIZER})
+    public boolean reportOfEvent(@PathVariable Long eventId ,HttpServletRequest request){
+        return eventService.reportEvent(eventId, ((User)request.getAttribute("user")).getUserId());
+    }
+
+    @PostMapping("/cancelEvent/{eventId}")
+    @RequiredRole({Role.EVENT_ORGANIZER})
+    public boolean cancelEvent(@PathVariable Long eventId ,HttpServletRequest request){
+        if(Objects.equals(eventService.getEventById(eventId).getOrganizerId(), ((User) request.getAttribute("user")).getUserId())) {
+            return eventService.cancelEvent(eventId);
+        }
+        return false;
     }
     // Fill in the rest
 }

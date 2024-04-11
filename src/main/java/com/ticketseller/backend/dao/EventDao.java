@@ -4,22 +4,18 @@ import com.ticketseller.backend.core.CustomJdbcTemplate;
 import com.ticketseller.backend.core.CustomSqlParameters;
 import com.ticketseller.backend.core.ResultSetWrapper;
 import com.ticketseller.backend.entity.Event;
-import com.ticketseller.backend.entity.User;
 import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.EventType;
-import com.ticketseller.backend.enums.Role;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static java.util.Objects.isNull;
-import java.sql.Timestamp;
+
 import java.time.format.DateTimeFormatter;
 
 @RequiredArgsConstructor
@@ -216,6 +212,67 @@ public class EventDao {
         CustomSqlParameters params = CustomSqlParameters.create();
         params.put("EVENT_ID", eventId);
         String sql = "UPDATE EVENT SET EVENT_STATUS = 'REJECTED' WHERE EVENT_ID = :EVENT_ID";
+        int rowsAffected = jdbcTemplate.update(sql, params);
+        return rowsAffected > 0;
+    }
+
+    public Optional<List<Event>> getMyEvents(Long userId) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("USER_ID", userId);
+        String sql = "SELECT * FROM EVENT WHERE ORGANIZER_ID = :USER_ID";
+        try {
+
+            return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
+                ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                return Event.builder()
+                        .eventId(rsw.getLong("EVENT_ID"))
+                        .name(rsw.getString("NAME"))
+                        .details(rsw.getString("DETAILS"))
+                        .startDate(rsw.getLocalDateTime("START_DATE"))
+                        .endDate(rsw.getLocalDateTime("END_DATE"))
+                        .ticketPrice(rsw.getDouble("TICKET_PRICE"))
+                        .numberOfTickets(rsw.getInteger("NUMBER_OF_TICKETS"))
+                        .eventType(EventType.getEventTypeFromStringValue(rsw.getString("EVENT_TYPE")))
+                        .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
+                        .organizerId(rsw.getLong("ORGANIZER_ID"))
+                        .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
+                        .venueId(rsw.getLong("VENUE_ID"))
+                        .build();
+            }));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+    public boolean createReport(Long eventId, Long organizerId){
+        CustomSqlParameters params = CustomSqlParameters.create();
+
+        params.put("EVENT_ID", eventId);
+        params.put("ORGANIZER_ID", organizerId);
+        String sql = "INSERT INTO REPORT (REPORT_DATE, TOTAL_SALES, TOTAL_REVENUE, ORGANIZER_ID, EVENT_ID) " +
+                "SELECT " +
+                "  CURRENT_TIMESTAMP AS REPORT_DATE, " +
+                "  COUNT(*) AS TOTAL_SALES, " +
+                "  SUM(PRICE) AS TOTAL_REVENUE, " +
+                "  :ORGANIZER_ID AS ORGANIZER_ID, " +
+                "  :EVENT_ID AS EVENT_ID " +
+                "FROM " +
+                "  TICKET " +
+                "WHERE " +
+                "  EVENT_ID = :EVENT_ID AND " +
+                "  TICKET_STATUS = 'RESERVED' " +
+                "GROUP BY " +
+                "  EVENT_ID;";
+
+        int rowsAffected = jdbcTemplate.update(sql, params);
+        return rowsAffected > 0;
+    }
+    public boolean cancelEvent(Long eventId){
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("EVENT_ID", eventId);
+        String sql = "UPDATE EVENT " +
+                "SET EVENT_STATUS='CANCELED' " +  // Use single quotes for string literals
+                "WHERE EVENT_ID = :EVENT_ID";
         int rowsAffected = jdbcTemplate.update(sql, params);
         return rowsAffected > 0;
     }
