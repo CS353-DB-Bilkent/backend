@@ -165,5 +165,11 @@ public class EventController {
         );
     }
 
+    @PostMapping("/reportEvent/{eventId}")
+    @RequiredRole({Role.EVENT_ORGANIZER})
+    public boolean postReview(@PathVariable Long eventId ,HttpServletRequest request){
+        return eventService.reportEvent(eventId, ((User)request.getAttribute("user")).getUserId());
+    }
+
     // Fill in the rest
 }

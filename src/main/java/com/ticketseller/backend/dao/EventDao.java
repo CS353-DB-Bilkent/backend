@@ -4,23 +4,18 @@ import com.ticketseller.backend.core.CustomJdbcTemplate;
 import com.ticketseller.backend.core.CustomSqlParameters;
 import com.ticketseller.backend.core.ResultSetWrapper;
 import com.ticketseller.backend.entity.Event;
-import com.ticketseller.backend.entity.Review;
-import com.ticketseller.backend.entity.User;
 import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.EventType;
-import com.ticketseller.backend.enums.Role;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static java.util.Objects.isNull;
-import java.sql.Timestamp;
+
 import java.time.format.DateTimeFormatter;
 
 @RequiredArgsConstructor
@@ -248,5 +243,28 @@ public class EventDao {
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
+    }
+    public boolean createReport(Long eventId, Long organizerId){
+        CustomSqlParameters params = CustomSqlParameters.create();
+
+        params.put("EVENT_ID", eventId);
+        params.put("ORGANIZER_ID", organizerId);
+        String sql = "INSERT INTO REPORT (REPORT_DATE, TOTAL_SALES, TOTAL_REVENUE, ORGANIZER_ID, EVENT_ID) " +
+                "SELECT " +
+                "  CURRENT_TIMESTAMP AS REPORT_DATE, " +
+                "  COUNT(*) AS TOTAL_SALES, " +
+                "  SUM(PRICE) AS TOTAL_REVENUE, " +
+                "  :ORGANIZER_ID AS ORGANIZER_ID, " +
+                "  :EVENT_ID AS EVENT_ID " +
+                "FROM " +
+                "  TICKET " +
+                "WHERE " +
+                "  EVENT_ID = :EVENT_ID AND " +
+                "  TICKET_STATUS = 'RESERVED' " +
+                "GROUP BY " +
+                "  EVENT_ID;";
+
+        int rowsAffected = jdbcTemplate.update(sql, params);
+        return rowsAffected > 0;
     }
 }

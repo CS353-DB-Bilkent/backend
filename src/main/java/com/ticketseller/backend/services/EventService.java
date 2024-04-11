@@ -121,4 +121,7 @@ public class EventService {
         return eventDao.getMyEvents(userId)
                 .orElseThrow(() -> new EventRuntimeException("Events not found", 1, HttpStatus.NOT_FOUND));
     }
+    public boolean reportEvent(Long eventId, Long organizerId){
+        return eventDao.createReport(eventId, organizerId);
+    }
 }
