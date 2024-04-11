@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 
 @RequiredArgsConstructor
@@ -167,9 +168,17 @@ public class EventController {
 
     @PostMapping("/reportEvent/{eventId}")
     @RequiredRole({Role.EVENT_ORGANIZER})
-    public boolean postReview(@PathVariable Long eventId ,HttpServletRequest request){
+    public boolean reportOfEvent(@PathVariable Long eventId ,HttpServletRequest request){
         return eventService.reportEvent(eventId, ((User)request.getAttribute("user")).getUserId());
     }
 
+    @PostMapping("/cancelEvent/{eventId}")
+    @RequiredRole({Role.EVENT_ORGANIZER})
+    public boolean cancelEvent(@PathVariable Long eventId ,HttpServletRequest request){
+        if(Objects.equals(eventService.getEventById(eventId).getOrganizerId(), ((User) request.getAttribute("user")).getUserId())) {
+            return eventService.cancelEvent(eventId);
+        }
+        return false;
+    }
     // Fill in the rest
 }

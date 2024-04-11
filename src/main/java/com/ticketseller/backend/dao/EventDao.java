@@ -267,4 +267,13 @@ public class EventDao {
         int rowsAffected = jdbcTemplate.update(sql, params);
         return rowsAffected > 0;
     }
+    public boolean cancelEvent(Long eventId){
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("EVENT_ID", eventId);
+        String sql = "UPDATE EVENT " +
+                "SET EVENT_STATUS='CANCELED' " +  // Use single quotes for string literals
+                "WHERE EVENT_ID = :EVENT_ID";
+        int rowsAffected = jdbcTemplate.update(sql, params);
+        return rowsAffected > 0;
+    }
 }

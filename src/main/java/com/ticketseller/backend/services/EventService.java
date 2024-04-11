@@ -124,4 +124,7 @@ public class EventService {
     public boolean reportEvent(Long eventId, Long organizerId){
         return eventDao.createReport(eventId, organizerId);
     }
+    public boolean cancelEvent(Long eventId){
+        return eventDao.cancelEvent(eventId);
+    }
 }
