@@ -150,6 +150,7 @@ public class EventController {
     @PostMapping("/postReview")
     @RequiredRole({Role.USER})
     public void postReview(@RequestBody Review review, HttpServletRequest request){
+        review.setUserId(((User)request.getAttribute("user")).getUserId());
         eventService.addReview(review); //TODO: userid must be added
     }
 

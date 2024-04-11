@@ -11,11 +11,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Review {
-    private Long reviewId;
-
     private int rating;
 
     private String description;
 
     private LocalDate reviewDate;
+
+    private Long userId;
 }
