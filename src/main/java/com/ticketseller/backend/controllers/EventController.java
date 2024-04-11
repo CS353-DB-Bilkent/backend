@@ -154,5 +154,16 @@ public class EventController {
         eventService.addReview(review); //TODO: userid must be added
     }
 
+    @GetMapping("/getAllMyEvents")
+    @RequiredRole({Role.EVENT_ORGANIZER})
+    public ResponseEntity<ApiResponse<List<Event>>> getAllMyEvents(HttpServletRequest request){
+
+        return ResponseEntity.ok(
+                ApiResponse.<List<Event>>builder()
+                        .operationResultData(eventService.getAllMyEvents(((User)request.getAttribute("user")).getUserId()))
+                        .build()
+        );
+    }
+
     // Fill in the rest
 }

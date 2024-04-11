@@ -220,4 +220,33 @@ public class EventDao {
         int rowsAffected = jdbcTemplate.update(sql, params);
         return rowsAffected > 0;
     }
+
+    public Optional<List<Event>> getMyEvents(Long userId) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("USER_ID", userId);
+        String sql = "SELECT * FROM EVENT WHERE ORGANIZER_ID = :USER_ID";
+        try {
+
+            return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
+                ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                return Event.builder()
+                        .eventId(rsw.getLong("EVENT_ID"))
+                        .name(rsw.getString("NAME"))
+                        .details(rsw.getString("DETAILS"))
+                        .startDate(rsw.getLocalDateTime("START_DATE"))
+                        .endDate(rsw.getLocalDateTime("END_DATE"))
+                        .ticketPrice(rsw.getDouble("TICKET_PRICE"))
+                        .numberOfTickets(rsw.getInteger("NUMBER_OF_TICKETS"))
+                        .eventType(EventType.getEventTypeFromStringValue(rsw.getString("EVENT_TYPE")))
+                        .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
+                        .organizerId(rsw.getLong("ORGANIZER_ID"))
+                        .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
+                        .venueId(rsw.getLong("VENUE_ID"))
+                        .build();
+            }));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
 }

@@ -5,6 +5,7 @@ import com.ticketseller.backend.dao.ReviewDao;
 import com.ticketseller.backend.dao.UserDao;
 import com.ticketseller.backend.entity.Event;
 import com.ticketseller.backend.entity.Review;
+import com.ticketseller.backend.entity.Ticket;
 import com.ticketseller.backend.entity.User;
 import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.EventType;
@@ -114,5 +115,10 @@ public class EventService {
     }
     public void addReview(Review review){
         reviewDao.addReview(review);
+    }
+
+    public List<Event> getAllMyEvents(Long userId) {
+        return eventDao.getMyEvents(userId)
+                .orElseThrow(() -> new EventRuntimeException("Events not found", 1, HttpStatus.NOT_FOUND));
     }
 }
