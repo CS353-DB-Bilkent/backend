@@ -1,5 +1,7 @@
 package com.ticketseller.backend.services;
 
+import com.ticketseller.backend.core.CustomJdbcTemplate;
+import com.ticketseller.backend.core.CustomSqlParameters;
 import com.ticketseller.backend.dao.EventDao;
 import com.ticketseller.backend.dao.TicketDao;
 import com.ticketseller.backend.dao.UserDao;
@@ -12,6 +14,7 @@ import com.ticketseller.backend.exceptions.runtimeExceptions.EventRuntimeExcepti
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,6 +34,8 @@ public class TicketService {
     private final UserDao userDao;
     private final EventDao eventDao;
 
+    private final CustomJdbcTemplate jdbcTemplate;
+
     public List<Ticket> getTicketsByUserId(Long userId, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
         if(Objects.equals(user.getUserId(), userId)) {
@@ -40,6 +45,7 @@ public class TicketService {
         return Collections.emptyList();
     }
 
+    @Transactional(rollbackFor = {Exception.class})
     public boolean buyTicket(Long userId, Long eventId, boolean buyerVisible) {
         User user = userDao.getUserByUserId(userId)
                 .orElseThrow(() -> new EventRuntimeException("User not found", 1, HttpStatus.NOT_FOUND));
@@ -57,17 +63,6 @@ public class TicketService {
             throw new EventRuntimeException("Insufficient balance", 3, HttpStatus.PAYMENT_REQUIRED);
         }
 
-        userDao.updateBalance(userId, user.getBalance() - event.getTicketPrice());
-        userDao.saveUser(user);
-
-        eventDao.updateNumberOfTickets(eventId, event.getNumberOfTickets() - 1);
-
-        User organizer = userDao.getUserByUserId(event.getOrganizerId())
-                .orElseThrow(() -> new EventRuntimeException("Organizer not found", 1, HttpStatus.NOT_FOUND));
-        userDao.updateBalance(organizer.getUserId(), organizer.getBalance() + event.getTicketPrice());
-        userDao.saveUser(organizer);
-
-
         Ticket ticket = new Ticket();
         ticket.setUserId(userId);
         ticket.setEventId(eventId);
@@ -78,9 +73,26 @@ public class TicketService {
         ticket.setBuyerVisible(buyerVisible);
         ticketDao.saveTicket(ticket);
 
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("user_id", user.getUserId());
+        params.put("price", ticket.getPrice());
+        params.put("organizer_id", event.getOrganizerId());
+
+        String sql = "UPDATE users SET balance = CASE " +
+                "WHEN user_id = :user_id THEN balance - :price " +
+                "WHEN user_id = :organizer_id THEN balance + :price " +
+                "END " +
+                "WHERE user_id IN (:user_id, :organizer_id)";
+        jdbcTemplate.update(sql, params);
+
+        params.put("decrement", 1);
+        params.put("event_id", eventId);
+
+        sql = "UPDATE event SET number_of_tickets = number_of_tickets - :decrement WHERE event_id = :event_id";
+        jdbcTemplate.update(sql, params);
+
         log.info("Ticket purchased successfully for user {} and event {}", userId, eventId);
 
         return true;
     }
-
 }

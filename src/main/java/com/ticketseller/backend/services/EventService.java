@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -59,23 +60,27 @@ public class EventService {
             throw new EventRuntimeException("Minimum age allowed is negative", 1, HttpStatus.BAD_REQUEST);
         }
 
-        Venue venue = venueService.findVenueById(venueId);
-        if (venue == null) {
+        Optional<Venue> venueOptional = Optional.ofNullable(venueService.findVenueById(venueId));
+        if (!venueOptional.isPresent()) {
             log.error("Venue not found");
             throw new EventRuntimeException("Venue not found", 1, HttpStatus.BAD_REQUEST);
         }
+        Venue venue = venueOptional.get();
 
         if (numberOfTickets > venue.getVenueCapacity()) {
             log.error("Number of tickets exceeds venue capacity");
             throw new EventRuntimeException("Number of tickets exceeds venue capacity", 1, HttpStatus.BAD_REQUEST);
         }
 
-        Brand brand = brandService.findBrandById(brandId);
-        if (brand == null) {
-            brand = new Brand();
+        Optional<Brand> brandOptional = Optional.ofNullable(brandService.findBrandById(brandId));
+        Brand brand = new Brand();
+        if (!brandOptional.isPresent()) {
             brand.setBrandId(brandId);
             brand.setBrandName(brandName);
             brandDao.saveBrand(brand);
+        }
+        else {
+            brand = brandOptional.get();
         }
 
         EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
