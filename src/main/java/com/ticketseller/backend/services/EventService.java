@@ -1,20 +1,14 @@
 package com.ticketseller.backend.services;
 
-import com.ticketseller.backend.dao.EventDao;
-import com.ticketseller.backend.dao.ReviewDao;
-import com.ticketseller.backend.dao.UserDao;
-import com.ticketseller.backend.entity.Event;
-import com.ticketseller.backend.entity.Review;
-import com.ticketseller.backend.entity.Ticket;
-import com.ticketseller.backend.entity.User;
+import com.ticketseller.backend.dao.*;
+import com.ticketseller.backend.entity.*;
 import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.EventType;
 import com.ticketseller.backend.exceptions.runtimeExceptions.EventRuntimeException;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +23,15 @@ import java.util.List;
 public class EventService {
 
     private final EventDao eventDao;
+    private final BrandService brandService;
+    private final EventPersonService eventPersonService;
+    private final VenueDao venueDao;
+    private final BrandDao brandDao;
+    private final VenueService venueService;
     private final ReviewDao reviewDao;
-    public Event saveEvent(String eventName, String eventDetails, LocalDateTime startDate, LocalDateTime endDate, Double ticketPrice, Integer numberOfTickets, String eventType, Integer minAgeAllowed, Long organizerId) {
+    private final EventPersonDao eventPersonDao;
+
+    public Event saveEvent(String eventName, String eventDetails, LocalDateTime startDate, LocalDateTime endDate, Double ticketPrice, Integer numberOfTickets, String eventType, Integer minAgeAllowed, Long organizerId, Long venueId,  Long brandId, String brandName, Long eventPersonId, String eventPersonName) {
         EventType eventTypeEnum = EventType.getEventTypeFromStringValue(eventType);
 
         if (eventTypeEnum == EventType.UNRECOGNIZED) {
@@ -58,14 +59,33 @@ public class EventService {
             throw new EventRuntimeException("Minimum age allowed is negative", 1, HttpStatus.BAD_REQUEST);
         }
 
-        // First check if venue exists using venueService
-        // If not, throw error which will be caught in frontend. That'll trigger venue creation page.
-        // Create the venue, then send the query again to this function. Now the event will be created.
-        // Also, do the same for artist and brand. However, no need to throw error for those.
-        // Just create the artist and brand if they don't exist.
-        // Lastly, do not forget to insert into hosts relation.
+        Venue venue = venueService.findVenueById(venueId);
+        if (venue == null) {
+            log.error("Venue not found");
+            throw new EventRuntimeException("Venue not found", 1, HttpStatus.BAD_REQUEST);
+        }
 
-        // Also check whether event tickets outnumber venue capacity. If so, throw error.
+        if (numberOfTickets > venue.getVenueCapacity()) {
+            log.error("Number of tickets exceeds venue capacity");
+            throw new EventRuntimeException("Number of tickets exceeds venue capacity", 1, HttpStatus.BAD_REQUEST);
+        }
+
+        Brand brand = brandService.findBrandById(brandId);
+        if (brand == null) {
+            brand = new Brand();
+            brand.setBrandId(brandId);
+            brand.setBrandName(brandName);
+            brandDao.saveBrand(brand);
+        }
+
+
+        EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
+        if (eventPerson == null) {
+            eventPerson = new EventPerson();
+            eventPerson.setEventPersonId(eventPersonId);
+            eventPerson.setEventPersonName(eventPersonName);
+            eventPersonDao.saveEventPerson(eventPerson);
+        }
 
         Event event = Event.builder()
                 .name(eventName)
@@ -77,8 +97,10 @@ public class EventService {
                 .minAgeAllowed(minAgeAllowed)
                 .eventType(eventTypeEnum)
                 .eventStatus(EventStatus.WAITING_APPROVAL)
-                .venueId(1L) // Change this when you implement venue service
                 .organizerId(organizerId)
+                .venue(venue)
+                .brand(brand)
+                .eventPerson(eventPerson)
                 .build();
 
         eventDao.saveEvent(event);

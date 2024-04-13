@@ -4,6 +4,7 @@ import com.ticketseller.backend.annotations.NoAuthRequired;
 import com.ticketseller.backend.annotations.RequiredRole;
 import com.ticketseller.backend.dto.request.event.CreateEventRequest;
 import com.ticketseller.backend.dto.request.event.FilterEventsRequest;
+import com.ticketseller.backend.dto.request.ticket.BuyTicketRequest;
 import com.ticketseller.backend.dto.response.ApiResponse;
 import com.ticketseller.backend.entity.Event;
 import com.ticketseller.backend.entity.Review;
@@ -61,7 +62,12 @@ public class EventController {
                                 createEventRequest.getNumberOfTickets(),
                                 createEventRequest.getEventType(),
                                 createEventRequest.getMinAgeAllowed(),
-                                user.getUserId()
+                                user.getUserId(),
+                                createEventRequest.getVenueId(),
+                                createEventRequest.getBrandId(),
+                                createEventRequest.getBrandName(),
+                                createEventRequest.getEventPersonId(),
+                                createEventRequest.getEventPersonName()
                         ))
                         .build()
         );
@@ -109,8 +115,18 @@ public class EventController {
         );
     }
 
-    public void buyTicket(/* ... */) {
-        // ...
+    @PostMapping("/{eventId}/buyTicket")
+    @RequiredRole({Role.USER})
+    public ResponseEntity<String> buyTicket(HttpServletRequest request, @PathVariable Long eventId, @RequestBody BuyTicketRequest buyTicketRequest) {
+        User user = (User) request.getAttribute("user");
+
+
+        boolean result = ticketService.buyTicket(user.getUserId(), eventId, buyTicketRequest.isBuyerVisible());
+        if (result) {
+            return ResponseEntity.ok("Ticket purchased successfully.");
+        } else {
+            return ResponseEntity.badRequest().body("Failed to purchase ticket. Please check the ticket availability and your balance.");
+        }
     }
 
 
@@ -126,6 +142,8 @@ public class EventController {
                 .operationResultData(event)
                 .build()): ResponseEntity.internalServerError().build();
     }
+
+
     @GetMapping("/rejectEvent/{eventId}")
     @RequiredRole({ Role.ADMIN })
     public ResponseEntity<ApiResponse<Event>> rejectEvent(@PathVariable Long eventId) {
@@ -139,6 +157,8 @@ public class EventController {
                 .operationResultData(event)
                 .build()): ResponseEntity.internalServerError().build();
     }
+
+
     @GetMapping("/getAllTickets/{userId}")
     @RequiredRole({Role.USER})
     public ResponseEntity<ApiResponse<List<Ticket>>> getTicketsByUserId(@PathVariable Long userId, HttpServletRequest request){
