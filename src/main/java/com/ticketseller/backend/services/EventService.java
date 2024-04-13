@@ -78,7 +78,6 @@ public class EventService {
             brandDao.saveBrand(brand);
         }
 
-
         EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
         if (eventPerson == null) {
             eventPerson = new EventPerson();

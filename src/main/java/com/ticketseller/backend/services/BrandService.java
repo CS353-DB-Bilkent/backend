@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 
 @Slf4j
@@ -24,7 +25,7 @@ public class BrandService {
     private final BrandDao brandDao;
 
     public Brand findBrandById(Long brandId) {
-        return (Brand) brandDao.findBrandById(brandId)
+        return brandDao.findBrandById(brandId)
                 .orElseThrow(() -> new EventRuntimeException("Brand not found", 1, HttpStatus.NOT_FOUND));
     }
 

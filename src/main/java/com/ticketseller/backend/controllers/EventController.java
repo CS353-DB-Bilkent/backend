@@ -5,16 +5,15 @@ import com.ticketseller.backend.annotations.RequiredRole;
 import com.ticketseller.backend.dto.request.event.CreateEventRequest;
 import com.ticketseller.backend.dto.request.event.FilterEventsRequest;
 import com.ticketseller.backend.dto.request.ticket.BuyTicketRequest;
+import com.ticketseller.backend.dto.request.venue.CreateVenueRequest;
 import com.ticketseller.backend.dto.response.ApiResponse;
-import com.ticketseller.backend.entity.Event;
-import com.ticketseller.backend.entity.Review;
-import com.ticketseller.backend.entity.Ticket;
-import com.ticketseller.backend.entity.User;
+import com.ticketseller.backend.entity.*;
 import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.Role;
 import com.ticketseller.backend.services.EventService;
 import com.ticketseller.backend.services.TicketService;
 import com.ticketseller.backend.services.UserService;
+import com.ticketseller.backend.services.VenueService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +31,7 @@ public class EventController {
 
     private final EventService eventService;
     private final TicketService ticketService;
+    private final VenueService venueService;
 
     @GetMapping("/me")
     @RequiredRole({ Role.EVENT_ORGANIZER })
@@ -161,10 +161,12 @@ public class EventController {
 
     @GetMapping("/getAllTickets/{userId}")
     @RequiredRole({Role.USER})
-    public ResponseEntity<ApiResponse<List<Ticket>>> getTicketsByUserId(@PathVariable Long userId, HttpServletRequest request){
+    public ResponseEntity<ApiResponse<List<Ticket>>> getTicketsByUserId(HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+
         return ResponseEntity.ok(
                 ApiResponse.<List<Ticket>>builder()
-                        .operationResultData(ticketService.getTicketsByUserId(userId, request))
+                        .operationResultData(ticketService.getTicketsByUserId(user.getUserId(), request))
                         .build()
         );
     }
@@ -200,5 +202,19 @@ public class EventController {
         }
         return false;
     }
-    // Fill in the rest
+
+    @PostMapping("/createVenue")
+    @RequiredRole({Role.EVENT_ORGANIZER})
+    public ResponseEntity<ApiResponse<Venue>> createVenue(@Valid @RequestBody CreateVenueRequest createVenueRequest) {
+        return ResponseEntity.ok(
+                ApiResponse.<Venue>builder()
+                        .operationResultData(venueService.saveVenue(
+                                createVenueRequest.getVenueName(),
+                                createVenueRequest.getVenueAddress(),
+                                createVenueRequest.getVenueCity(),
+                                createVenueRequest.getVenueCapacity()
+                        ))
+                        .build()
+        );
+    }
 }
