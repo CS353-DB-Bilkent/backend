@@ -94,6 +94,12 @@ public class EventDao {
                 Long venueId = rsw.getLong("VENUE_ID");
                 Venue venue = venueService.findVenueById(venueId);
 
+                Long brandId = rsw.getLong("BRAND_ID");
+                Brand brand = brandService.findBrandById(brandId);
+
+                Long eventPersonId = rsw.getLong("EVENT_PERSON_ID");
+                EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
+
                 return Event.builder()
                         .eventId(rsw.getLong("EVENT_ID"))
                         .name(rsw.getString("NAME"))
@@ -107,6 +113,8 @@ public class EventDao {
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
                         .venue(venue)
+                        .brand(brand)
+                        .eventPerson(eventPerson)
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -120,7 +128,7 @@ public class EventDao {
 
         String sql =
                 "SELECT * " +
-                        "FROM EVENT e WHERE e.EVENT_ID = :EVENT_ID";
+                        "FROM EVENT e INNER JOIN HOSTS h ON h.EVENT_ID = e.EVENT_ID WHERE e.EVENT_ID = :EVENT_ID";
 
         try {
 
@@ -164,7 +172,7 @@ public class EventDao {
 
         String sql =
                 "SELECT * " +
-                        "FROM EVENT e WHERE e.ORGANIZER_ID = :ORGANIZER_ID";
+                        "FROM EVENT e INNER JOIN HOSTS h ON h.EVENT_ID = e.EVENT_ID WHERE e.ORGANIZER_ID = :ORGANIZER_ID";
 
         try {
 
@@ -208,7 +216,7 @@ public class EventDao {
 
         String sql =
                 "SELECT * " +
-                        "FROM EVENT e WHERE e.EVENT_STATUS = :EVENT_STATUS LIMIT 20";
+                        "FROM EVENT e INNER JOIN HOSTS h ON h.EVENT_ID = e.EVENT_ID WHERE e.EVENT_STATUS = :EVENT_STATUS LIMIT 20";
 
         try {
 
@@ -264,7 +272,7 @@ public class EventDao {
     public Optional<List<Event>> getMyEvents(Long userId) {
         CustomSqlParameters params = CustomSqlParameters.create();
         params.put("USER_ID", userId);
-        String sql = "SELECT * FROM EVENT WHERE ORGANIZER_ID = :USER_ID";
+        String sql = "SELECT * FROM EVENT e INNER JOIN HOSTS h ON e.EVENT_ID = h.EVENT_ID WHERE e.ORGANIZER_ID = :USER_ID";
         try {
 
             return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {

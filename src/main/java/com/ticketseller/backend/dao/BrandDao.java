@@ -43,16 +43,17 @@ public class BrandDao {
         String sql = "SELECT * FROM BRAND WHERE BRAND_ID = :BRAND_ID";
 
         try {
-            return Optional.of((Brand) jdbcTemplate.query(sql, params, (rs, rnum) -> {
-                    ResultSetWrapper rsw = new ResultSetWrapper(rs);
+            return Optional.of(jdbcTemplate.queryForObject(sql, params,(rs, rnum) -> {
+                ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
-                    return Brand.builder()
-                            .brandId(rsw.getLong("BRAND_ID"))
-                            .brandName(rsw.getString("NAME"))
-                            .build();
+                return Brand.builder()
+                        .brandId(rsw.getLong("BRAND_ID"))
+                        .brandName(rsw.getString("BRAND_NAME"))
+                        .build();
             }));
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
+
     }
 }

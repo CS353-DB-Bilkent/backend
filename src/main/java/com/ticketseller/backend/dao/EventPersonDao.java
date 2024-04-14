@@ -33,13 +33,13 @@ public class EventPersonDao {
         String sql = "SELECT * FROM EVENT_PERSON WHERE EVENT_PERSON_ID = :EVENT_PERSON_ID";
 
         try {
-            return Optional.of((EventPerson) jdbcTemplate.query(sql, params, (rs, rnum) -> {
-                    ResultSetWrapper rsw = new ResultSetWrapper(rs);
+            return Optional.of(jdbcTemplate.queryForObject(sql, params,(rs, rnum) -> {
+                ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
-                    return EventPerson.builder()
-                            .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
-                            .eventPersonName(rsw.getString("EVENT_PERSON_NAME"))
-                            .build();
+                return EventPerson.builder()
+                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
+                        .eventPersonName(rsw.getString("EVENT_PERSON_NAME"))
+                        .build();
             }));
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
