@@ -28,4 +28,12 @@ public class EventPersonService {
         return (EventPerson) eventPersonDao.findEventPersonById(eventPersonId)
                 .orElseThrow(() -> new EventRuntimeException("EventPerson not found", 1, HttpStatus.NOT_FOUND));
     }
+
+    public EventPerson saveEventPerson(String eventPersonName) {
+        EventPerson eventPerson = EventPerson.builder()
+                .eventPersonName(eventPersonName)
+                .build();
+        eventPersonDao.saveEventPerson(eventPerson);
+        return eventPerson;
+    }
 }

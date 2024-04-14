@@ -2,18 +2,17 @@ package com.ticketseller.backend.controllers;
 
 import com.ticketseller.backend.annotations.NoAuthRequired;
 import com.ticketseller.backend.annotations.RequiredRole;
+import com.ticketseller.backend.dto.request.brand.CreateBrandRequest;
 import com.ticketseller.backend.dto.request.event.CreateEventRequest;
 import com.ticketseller.backend.dto.request.event.FilterEventsRequest;
+import com.ticketseller.backend.dto.request.eventPerson.CreateEventPersonRequest;
 import com.ticketseller.backend.dto.request.ticket.BuyTicketRequest;
 import com.ticketseller.backend.dto.request.venue.CreateVenueRequest;
 import com.ticketseller.backend.dto.response.ApiResponse;
 import com.ticketseller.backend.entity.*;
 import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.Role;
-import com.ticketseller.backend.services.EventService;
-import com.ticketseller.backend.services.TicketService;
-import com.ticketseller.backend.services.UserService;
-import com.ticketseller.backend.services.VenueService;
+import com.ticketseller.backend.services.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +31,8 @@ public class EventController {
     private final EventService eventService;
     private final TicketService ticketService;
     private final VenueService venueService;
+    private final BrandService brandService;
+    private final EventPersonService eventPersonService;
 
     @GetMapping("/me")
     @RequiredRole({ Role.EVENT_ORGANIZER })
@@ -119,7 +120,6 @@ public class EventController {
     @RequiredRole({Role.USER})
     public ResponseEntity<String> buyTicket(HttpServletRequest request, @PathVariable Long eventId, @RequestBody BuyTicketRequest buyTicketRequest) {
         User user = (User) request.getAttribute("user");
-
 
         boolean result = ticketService.buyTicket(user.getUserId(), eventId, buyTicketRequest.isBuyerVisible());
         if (result) {
@@ -214,6 +214,75 @@ public class EventController {
                                 createVenueRequest.getVenueCity(),
                                 createVenueRequest.getVenueCapacity()
                         ))
+                        .build()
+        );
+    }
+
+    @GetMapping("/{eventId}/getVenue")
+    @RequiredRole({Role.USER})
+    public ResponseEntity<ApiResponse<Venue>> getVenueOfEvent(@PathVariable Long eventId) {
+        Event event = eventService.getEventById(eventId);
+        if (event == null) {
+            return ResponseEntity.notFound().build();
+        }
+        Venue venue = event.getVenue();
+        return ResponseEntity.ok(
+                ApiResponse.<Venue>builder()
+                        .operationResultData(venue)
+                        .build()
+        );
+    }
+
+    @PostMapping("/createBrand")
+    @RequiredRole({Role.EVENT_ORGANIZER})
+    public ResponseEntity<ApiResponse<Brand>> createBrand(@Valid @RequestBody CreateBrandRequest createBrandRequest) {
+        return ResponseEntity.ok(
+                ApiResponse.<Brand>builder()
+                        .operationResultData(brandService.saveBrand(
+                                createBrandRequest.getBrandName()
+                        ))
+                        .build()
+        );
+    }
+
+    @GetMapping("/{eventId}/getBrand")
+    @RequiredRole({Role.USER})
+    public ResponseEntity<ApiResponse<Brand>> getBrandOfEvent(@PathVariable Long eventId) {
+        Event event = eventService.getEventById(eventId);
+        if (event == null) {
+            return ResponseEntity.notFound().build();
+        }
+        Brand brand = event.getBrand();
+        return ResponseEntity.ok(
+                ApiResponse.<Brand>builder()
+                        .operationResultData(brand)
+                        .build()
+        );
+    }
+
+    @PostMapping("/createEventPerson")
+    @RequiredRole({Role.EVENT_ORGANIZER})
+    public ResponseEntity<ApiResponse<EventPerson>> createEventPerson(@Valid @RequestBody CreateEventPersonRequest createEventPersonRequest) {
+        return ResponseEntity.ok(
+                ApiResponse.<EventPerson>builder()
+                        .operationResultData(eventPersonService.saveEventPerson(
+                                createEventPersonRequest.getEventPersonName()
+                        ))
+                        .build()
+        );
+    }
+
+    @GetMapping("/{eventId}/getEventPerson")
+    @RequiredRole({Role.USER})
+    public ResponseEntity<ApiResponse<EventPerson>> getEventPerson(@PathVariable Long eventId) {
+        Event event = eventService.getEventById(eventId);
+        if (event == null) {
+            return ResponseEntity.notFound().build();
+        }
+        EventPerson eventPerson = event.getEventPerson();
+        return ResponseEntity.ok(
+                ApiResponse.<EventPerson>builder()
+                        .operationResultData(eventPerson)
                         .build()
         );
     }

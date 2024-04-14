@@ -153,4 +153,5 @@ public class EventService {
     public boolean cancelEvent(Long eventId){
         return eventDao.cancelEvent(eventId);
     }
+
 }

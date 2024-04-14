@@ -29,4 +29,12 @@ public class BrandService {
                 .orElseThrow(() -> new EventRuntimeException("Brand not found", 1, HttpStatus.NOT_FOUND));
     }
 
+    public Brand saveBrand(String brandName) {
+        Brand brand = Brand.builder()
+                .brandName(brandName)
+                .build();
+        brandDao.saveBrand(brand);
+        return brand;
+    }
+
 }
