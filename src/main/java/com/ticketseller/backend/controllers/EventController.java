@@ -121,6 +121,8 @@ public class EventController {
     public ResponseEntity<String> buyTicket(HttpServletRequest request, @PathVariable Long eventId, @RequestBody BuyTicketRequest buyTicketRequest) {
         User user = (User) request.getAttribute("user");
 
+        System.out.println(" Event ID: " + eventId + " Buyer Visible: " + buyTicketRequest.isBuyerVisible());
+
         boolean result = ticketService.buyTicket(user.getUserId(), eventId, buyTicketRequest.isBuyerVisible());
         if (result) {
             return ResponseEntity.ok("Ticket purchased successfully.");
@@ -283,6 +285,26 @@ public class EventController {
         return ResponseEntity.ok(
                 ApiResponse.<EventPerson>builder()
                         .operationResultData(eventPerson)
+                        .build()
+        );
+    }
+
+    @GetMapping("getAllBrands")
+    @RequiredRole(Role.EVENT_ORGANIZER)
+    public ResponseEntity<ApiResponse<List<Brand>>> getAllBrands(){
+        return ResponseEntity.ok(
+                ApiResponse.<List<Brand>>builder()
+                        .operationResultData(brandService.getAllBrands())
+                        .build()
+        );
+    }
+
+    @GetMapping("getAllVenues")
+    @RequiredRole(Role.EVENT_ORGANIZER)
+    public ResponseEntity<ApiResponse<List<Venue>>> getAllVenues(){
+        return ResponseEntity.ok(
+                ApiResponse.<List<Venue>>builder()
+                        .operationResultData(venueService.getAllVenues())
                         .build()
         );
     }

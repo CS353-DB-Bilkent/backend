@@ -37,4 +37,8 @@ public class BrandService {
         return brand;
     }
 
+    public List<Brand> getAllBrands() {
+        return brandDao.getAllBrands()
+                .orElseThrow(() -> new EventRuntimeException("Brands not found", 1, HttpStatus.NOT_FOUND));
+    }
 }

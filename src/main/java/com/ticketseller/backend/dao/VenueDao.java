@@ -60,4 +60,25 @@ public class VenueDao {
             return Optional.empty();
         }
     }
+
+    public Optional<List<Venue>> getAllVenues() {
+        CustomSqlParameters params = CustomSqlParameters.create();
+
+        String sql = "SELECT * FROM VENUE";
+        try {
+            return Optional.of(jdbcTemplate.query(sql, params,(rs, rnum) -> {
+                ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                return Venue.builder()
+                        .venueId(rsw.getLong("VENUE_ID"))
+                        .venueName(rsw.getString("NAME"))
+                        .venueCapacity(rsw.getLong("CAPACITY"))
+                        .venueCity(rsw.getString("CITY"))
+                        .venueAddress(rsw.getString("ADDRESS"))
+                        .build();
+            }));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
 }

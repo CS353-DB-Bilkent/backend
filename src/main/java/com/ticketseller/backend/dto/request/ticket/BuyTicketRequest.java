@@ -14,9 +14,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class BuyTicketRequest {
     @NotNull
-    private Long ticketId;
-
-    @NotNull
     private Long userId;
 
     @NotNull
@@ -31,8 +28,8 @@ public class BuyTicketRequest {
     @NotNull
     private TicketStatus ticketStatus;
 
-    @NotNull
-    private String qrCode;
+//    @NotNull
+//    private String qrCode;
 
     @NotNull
     private boolean buyerVisible;

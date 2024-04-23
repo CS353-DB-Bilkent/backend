@@ -56,4 +56,23 @@ public class BrandDao {
         }
 
     }
+
+    public Optional<List<Brand>> getAllBrands() {
+        CustomSqlParameters params = CustomSqlParameters.create();
+
+        String sql = "SELECT * FROM BRAND";
+
+        try {
+            return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
+                ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                return Brand.builder()
+                        .brandId(rsw.getLong("BRAND_ID"))
+                        .brandName(rsw.getString("BRAND_NAME"))
+                        .build();
+            }));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
 }
