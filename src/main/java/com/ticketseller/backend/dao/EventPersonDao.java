@@ -45,4 +45,21 @@ public class EventPersonDao {
             return Optional.empty();
         }
     }
+
+    public Optional<List<EventPerson>> getAllEventPersons() {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        String sql = "SELECT * FROM EVENT_PERSON";
+        try {
+            return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
+                ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                return EventPerson.builder()
+                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
+                        .eventPersonName(rsw.getString("EVENT_PERSON_NAME"))
+                        .build();
+            }));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
 }

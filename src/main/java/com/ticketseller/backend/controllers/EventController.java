@@ -308,4 +308,14 @@ public class EventController {
                         .build()
         );
     }
+
+    @GetMapping("getAllEventPersons")
+    @RequiredRole(Role.EVENT_ORGANIZER)
+    public ResponseEntity<ApiResponse<List<EventPerson>>> getAllEventPersons(){
+        return ResponseEntity.ok(
+                ApiResponse.<List<EventPerson>>builder()
+                        .operationResultData(eventPersonService.getAllEventPersons())
+                        .build()
+        );
+    }
 }

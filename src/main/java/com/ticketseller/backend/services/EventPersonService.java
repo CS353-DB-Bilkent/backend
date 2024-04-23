@@ -36,4 +36,8 @@ public class EventPersonService {
         eventPersonDao.saveEventPerson(eventPerson);
         return eventPerson;
     }
+    public List<EventPerson> getAllEventPersons() {
+        return eventPersonDao.getAllEventPersons()
+                .orElseThrow(() -> new EventRuntimeException("EventPerson not found", 1, HttpStatus.NOT_FOUND));
+    }
 }
