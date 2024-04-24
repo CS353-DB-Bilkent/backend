@@ -192,8 +192,12 @@ public class EventController {
 
     @PostMapping("/reportEvent/{eventId}")
     @RequiredRole({Role.EVENT_ORGANIZER})
-    public boolean reportOfEvent(@PathVariable Long eventId ,HttpServletRequest request){
-        return eventService.reportEvent(eventId, ((User)request.getAttribute("user")).getUserId());
+    public ResponseEntity<ApiResponse<List<Report>>> reportOfEvent(@PathVariable Long eventId , HttpServletRequest request){
+        return ResponseEntity.ok(
+                ApiResponse.<List<Report>>builder()
+                        .operationResultData(eventService.reportEvent(eventId, ((User)request.getAttribute("user")).getUserId()))
+                        .build()
+        );
     }
 
     @PostMapping("/cancelEvent/{eventId}")

@@ -1,5 +1,4 @@
 package com.ticketseller.backend.services;
-
 import com.ticketseller.backend.dao.*;
 import com.ticketseller.backend.entity.*;
 import com.ticketseller.backend.enums.EventStatus;
@@ -147,8 +146,9 @@ public class EventService {
         return eventDao.getMyEvents(userId)
                 .orElseThrow(() -> new EventRuntimeException("Events not found", 1, HttpStatus.NOT_FOUND));
     }
-    public boolean reportEvent(Long eventId, Long organizerId){
-        return eventDao.createReport(eventId, organizerId);
+    public List<Report> reportEvent(Long eventId, Long organizerId){
+        return eventDao.createReport(eventId, organizerId)
+                .orElseThrow(() -> new EventRuntimeException("Reports not found", 1, HttpStatus.NOT_FOUND));
     }
     public boolean cancelEvent(Long eventId){
         return eventDao.cancelEvent(eventId);
