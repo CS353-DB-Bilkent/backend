@@ -2,24 +2,19 @@ package com.ticketseller.backend.services;
 
 import com.ticketseller.backend.dao.EventDao;
 import com.ticketseller.backend.dao.ReviewDao;
-import com.ticketseller.backend.dao.UserDao;
-import com.ticketseller.backend.entity.Event;
-import com.ticketseller.backend.entity.Review;
-import com.ticketseller.backend.entity.Ticket;
-import com.ticketseller.backend.entity.User;
+import com.ticketseller.backend.entity.*;
 import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.EventType;
 import com.ticketseller.backend.exceptions.runtimeExceptions.EventRuntimeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -121,8 +116,9 @@ public class EventService {
         return eventDao.getMyEvents(userId)
                 .orElseThrow(() -> new EventRuntimeException("Events not found", 1, HttpStatus.NOT_FOUND));
     }
-    public boolean reportEvent(Long eventId, Long organizerId){
-        return eventDao.createReport(eventId, organizerId);
+    public List<Report> reportEvent(Long eventId, Long organizerId){
+        return eventDao.createReport(eventId, organizerId)
+                .orElseThrow(() -> new EventRuntimeException("Reports not found", 1, HttpStatus.NOT_FOUND));
     }
     public boolean cancelEvent(Long eventId){
         return eventDao.cancelEvent(eventId);

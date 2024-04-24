@@ -5,10 +5,7 @@ import com.ticketseller.backend.annotations.RequiredRole;
 import com.ticketseller.backend.dto.request.event.CreateEventRequest;
 import com.ticketseller.backend.dto.request.event.FilterEventsRequest;
 import com.ticketseller.backend.dto.response.ApiResponse;
-import com.ticketseller.backend.entity.Event;
-import com.ticketseller.backend.entity.Review;
-import com.ticketseller.backend.entity.Ticket;
-import com.ticketseller.backend.entity.User;
+import com.ticketseller.backend.entity.*;
 import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.Role;
 import com.ticketseller.backend.services.EventService;
@@ -168,8 +165,12 @@ public class EventController {
 
     @PostMapping("/reportEvent/{eventId}")
     @RequiredRole({Role.EVENT_ORGANIZER})
-    public boolean reportOfEvent(@PathVariable Long eventId ,HttpServletRequest request){
-        return eventService.reportEvent(eventId, ((User)request.getAttribute("user")).getUserId());
+    public ResponseEntity<ApiResponse<List<Report>>> reportOfEvent(@PathVariable Long eventId , HttpServletRequest request){
+        return ResponseEntity.ok(
+                ApiResponse.<List<Report>>builder()
+                        .operationResultData(eventService.reportEvent(eventId, ((User)request.getAttribute("user")).getUserId()))
+                        .build()
+        );
     }
 
     @PostMapping("/cancelEvent/{eventId}")
