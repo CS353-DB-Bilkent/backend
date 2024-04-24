@@ -22,6 +22,24 @@ public class TicketDao {
     private final CustomJdbcTemplate jdbcTemplate;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    public void saveTicket(Ticket ticket) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+
+        params.put("EVENT_ID", ticket.getEventId());
+        params.put("USER_ID", ticket.getUserId());
+        params.put("PURCHASE_DATE", ticket.getPurchaseDate());
+        params.put("PRICE", ticket.getPrice());
+        params.put("TICKET_STATUS", ticket.getTicketStatus().toString());
+        params.put("QR_CODE", ticket.getQrCode());
+        params.put("BUYER_VISIBLE", ticket.isBuyerVisible());
+
+        String sql = "INSERT INTO TICKET (EVENT_ID, USER_ID, PURCHASE_DATE, PRICE, TICKET_STATUS, QR_CODE, BUYER_VISIBLE) " +
+                "VALUES (:EVENT_ID, :USER_ID, :PURCHASE_DATE, :PRICE, :TICKET_STATUS, :QR_CODE, :BUYER_VISIBLE)";
+
+        jdbcTemplate.update(sql, params);
+
+    }
     public Optional<List<Ticket>> getTicketsByUserId(Long userId) {
         CustomSqlParameters params = CustomSqlParameters.create();
         params.put("USER_ID", userId);

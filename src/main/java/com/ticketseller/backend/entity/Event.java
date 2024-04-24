@@ -51,15 +51,12 @@ public class Event extends BaseEntity {
     private Long organizerId;
 
     @NotNull
-    private Long venueId;
+    private Venue venue;
 
-    // It should be used after a join, whenever we need venue info alongside the event info
-    // Implement venue, and uncomment this.
-    // private Venue venue;
+    @NotNull
+    private EventPerson eventPerson;
 
-
-
-
+    @NotNull
+    private Brand brand;
 
 }
-

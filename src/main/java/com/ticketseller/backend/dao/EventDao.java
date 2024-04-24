@@ -3,10 +3,16 @@ package com.ticketseller.backend.dao;
 import com.ticketseller.backend.core.CustomJdbcTemplate;
 import com.ticketseller.backend.core.CustomSqlParameters;
 import com.ticketseller.backend.core.ResultSetWrapper;
+import com.ticketseller.backend.entity.Brand;
 import com.ticketseller.backend.entity.Event;
 import com.ticketseller.backend.entity.Report;
+import com.ticketseller.backend.entity.EventPerson;
+import com.ticketseller.backend.entity.Venue;
 import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.EventType;
+import com.ticketseller.backend.services.BrandService;
+import com.ticketseller.backend.services.EventPersonService;
+import com.ticketseller.backend.services.VenueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -25,6 +31,9 @@ import java.time.format.DateTimeFormatter;
 public class EventDao {
 
     private final CustomJdbcTemplate jdbcTemplate;
+    private final VenueService venueService;
+    private final BrandService brandService;
+    private final EventPersonService eventPersonService;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -40,7 +49,7 @@ public class EventDao {
         params.put("MIN_AGE_ALLOWED", event.getMinAgeAllowed());
         params.put("EVENT_TYPE", event.getEventType().name());
         params.put("EVENT_STATUS", event.getEventStatus().name());
-        params.put("VENUE_ID", event.getVenueId());
+        params.put("VENUE_ID", event.getVenue().getVenueId());
         params.put("ORGANIZER_ID", event.getOrganizerId());
 
         String sql = "INSERT INTO EVENT (NAME, DETAILS, START_DATE, END_DATE, TICKET_PRICE, NUMBER_OF_TICKETS, MIN_AGE_ALLOWED, EVENT_TYPE, EVENT_STATUS, VENUE_ID, ORGANIZER_ID) " +
@@ -84,6 +93,15 @@ public class EventDao {
             return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
+                Long venueId = rsw.getLong("VENUE_ID");
+                Venue venue = venueService.findVenueById(venueId);
+
+                Long brandId = rsw.getLong("BRAND_ID");
+                Brand brand = brandService.findBrandById(brandId);
+
+                Long eventPersonId = rsw.getLong("EVENT_PERSON_ID");
+                EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
+
                 return Event.builder()
                         .eventId(rsw.getLong("EVENT_ID"))
                         .name(rsw.getString("NAME"))
@@ -96,7 +114,9 @@ public class EventDao {
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
-                        .venueId(rsw.getLong("VENUE_ID"))
+                        .venue(venue)
+                        .brand(brand)
+                        .eventPerson(eventPerson)
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -110,12 +130,21 @@ public class EventDao {
 
         String sql =
                 "SELECT * " +
-                        "FROM EVENT e WHERE e.EVENT_ID = :EVENT_ID";
+                        "FROM EVENT e INNER JOIN HOSTS h ON h.EVENT_ID = e.EVENT_ID WHERE e.EVENT_ID = :EVENT_ID";
 
         try {
 
             return Optional.of(jdbcTemplate.queryForObject(sql, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                Long venueId = rsw.getLong("VENUE_ID");
+                Venue venue = venueService.findVenueById(venueId);
+
+                Long brandId = rsw.getLong("BRAND_ID");
+                Brand brand = brandService.findBrandById(brandId);
+
+                Long eventPersonId = rsw.getLong("EVENT_PERSON_ID");
+                EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
 
                 return Event.builder()
                         .eventId(rsw.getLong("EVENT_ID"))
@@ -129,7 +158,9 @@ public class EventDao {
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
-                        .venueId(rsw.getLong("VENUE_ID"))
+                        .venue(venue)
+                        .brand(brand)
+                        .eventPerson(eventPerson)
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -143,12 +174,21 @@ public class EventDao {
 
         String sql =
                 "SELECT * " +
-                        "FROM EVENT e WHERE e.ORGANIZER_ID = :ORGANIZER_ID";
+                        "FROM EVENT e INNER JOIN HOSTS h ON h.EVENT_ID = e.EVENT_ID WHERE e.ORGANIZER_ID = :ORGANIZER_ID";
 
         try {
 
             return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                Long venueId = rsw.getLong("VENUE_ID");
+                Venue venue = venueService.findVenueById(venueId);
+
+                Long brandId = rsw.getLong("BRAND_ID");
+                Brand brand = brandService.findBrandById(brandId);
+
+                Long eventPersonId = rsw.getLong("EVENT_PERSON_ID");
+                EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
 
                 return Event.builder()
                         .eventId(rsw.getLong("EVENT_ID"))
@@ -162,7 +202,9 @@ public class EventDao {
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
-                        .venueId(rsw.getLong("VENUE_ID"))
+                        .venue(venue)
+                        .brand(brand)
+                        .eventPerson(eventPerson)
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -176,12 +218,21 @@ public class EventDao {
 
         String sql =
                 "SELECT * " +
-                        "FROM EVENT e WHERE e.EVENT_STATUS = :EVENT_STATUS LIMIT 20";
+                        "FROM EVENT e INNER JOIN HOSTS h ON h.EVENT_ID = e.EVENT_ID WHERE e.EVENT_STATUS = :EVENT_STATUS LIMIT 20";
 
         try {
 
             return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                Long venueId = rsw.getLong("VENUE_ID");
+                Venue venue = venueService.findVenueById(venueId);
+
+                Long brandId = rsw.getLong("BRAND_ID");
+                Brand brand = brandService.findBrandById(brandId);
+
+                Long eventPersonId = rsw.getLong("EVENT_PERSON_ID");
+                EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
 
                 return Event.builder()
                         .eventId(rsw.getLong("EVENT_ID"))
@@ -195,7 +246,9 @@ public class EventDao {
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
-                        .venueId(rsw.getLong("VENUE_ID"))
+                        .venue(venue)
+                        .brand(brand)
+                        .eventPerson(eventPerson)
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -221,11 +274,20 @@ public class EventDao {
     public Optional<List<Event>> getMyEvents(Long userId) {
         CustomSqlParameters params = CustomSqlParameters.create();
         params.put("USER_ID", userId);
-        String sql = "SELECT * FROM EVENT WHERE ORGANIZER_ID = :USER_ID";
+        String sql = "SELECT * FROM EVENT e INNER JOIN HOSTS h ON e.EVENT_ID = h.EVENT_ID WHERE e.ORGANIZER_ID = :USER_ID";
         try {
 
             return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                Long venueId = rsw.getLong("VENUE_ID");
+                Venue venue = venueService.findVenueById(venueId);
+
+                Long brandId = rsw.getLong("BRAND_ID");
+                Brand brand = brandService.findBrandById(brandId);
+
+                Long eventPersonId = rsw.getLong("EVENT_PERSON_ID");
+                EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
 
                 return Event.builder()
                         .eventId(rsw.getLong("EVENT_ID"))
@@ -239,7 +301,9 @@ public class EventDao {
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
-                        .venueId(rsw.getLong("VENUE_ID"))
+                        .venue(venue)
+                        .brand(brand)
+                        .eventPerson(eventPerson)
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -313,5 +377,13 @@ public class EventDao {
                 "WHERE EVENT_ID = :EVENT_ID";
         int rowsAffected = jdbcTemplate.update(sql, params);
         return rowsAffected > 0;
+    }
+
+    public void updateNumberOfTickets(Long eventId, int i) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("EVENT_ID", eventId);
+        params.put("NUMBER_OF_TICKETS", i);
+        String sql = "UPDATE EVENT SET NUMBER_OF_TICKETS = :NUMBER_OF_TICKETS WHERE EVENT_ID = :EVENT_ID";
+        jdbcTemplate.update(sql, params);
     }
 }

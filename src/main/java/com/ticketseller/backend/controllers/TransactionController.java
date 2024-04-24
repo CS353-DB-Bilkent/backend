@@ -32,7 +32,7 @@ public class TransactionController {
     }
 
     @PostMapping("/deposit/{amount}")
-    public ResponseEntity<ApiResponse<?>> deposit(HttpServletRequest request, @RequestParam Double amount) {
+    public ResponseEntity<ApiResponse<?>> deposit(HttpServletRequest request, @PathVariable Double amount) {
         User user = (User) request.getAttribute("user");
 
         transactionService.deposit(user.getUserId(), amount);
@@ -45,7 +45,7 @@ public class TransactionController {
     }
 
     @PostMapping("/withdraw/{amount}")
-    public ResponseEntity<ApiResponse<?>> withdraw(HttpServletRequest request, @RequestParam Double amount) {
+    public ResponseEntity<ApiResponse<?>> withdraw(HttpServletRequest request, @PathVariable Double amount) {
         User user = (User) request.getAttribute("user");
 
         transactionService.withdraw(user.getUserId(), amount);
