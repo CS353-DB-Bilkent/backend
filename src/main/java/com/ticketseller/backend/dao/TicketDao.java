@@ -17,6 +17,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -89,7 +90,7 @@ public class TicketDao {
         params.put("EVENT_ID", t.getEventId());
         params.put("TICKET_ID", t.getTicketId());
         String updateTicketSql = "UPDATE TICKET " +
-                "SET TICKET_STATUS = 'Available' " +
+                "SET TICKET_STATUS = 'EMPTY' " +
                 "WHERE TICKET_ID = :TICKET_ID AND EVENT_ID = :EVENT_ID;";
         jdbcTemplate.update(updateTicketSql, params);
         params = CustomSqlParameters.create();
@@ -101,19 +102,25 @@ public class TicketDao {
                 "WHERE USER_ID = ( " +
                 "    SELECT USER_ID FROM EVENT WHERE EVENT_ID = :EVENT_ID " +
                 ");";
-        params = CustomSqlParameters.create();
-        params.put("EVENT_ID", t.getEventId());
         jdbcTemplate.update(updateEventOrgBalanceSql, params);
-        /*
         params = CustomSqlParameters.create();
-        params.put("TICKET_ID", ticketId);
+        params.put("TRANSACTION_AMOUNT", t.getPrice());
+        params.put("TRANSACTION_DATE", LocalDate.now());
         params.put("USER_ID", t.getUserId());
-        String deleteBuysSql = "DELETE FROM BUYS " +
-                "WHERE TICKET_ID = :TICKET_ID AND USER_ID = :USER_ID;";
-        jdbcTemplate.update(deleteBuysSql, params);
-
-         */
-
+        params.put("EVENT_ID", t.getEventId());
+        // Insert transaction record for user's balance update
+        String insertUserTransactionSql = "INSERT INTO TRANSACTION (TRANSACTION_AMOUNT, TRANSACTION_TYPE, TRANSACTION_DATE, USER_ID, EVENT_ID) " +
+                "VALUES (:TRANSACTION_AMOUNT, 'TICKET REFUND', :TRANSACTION_DATE, :USER_ID, :EVENT_ID);";
+        jdbcTemplate.update(insertUserTransactionSql, params);
+        params = CustomSqlParameters.create();
+        params.put("TRANSACTION_AMOUNT", -1 * t.getPrice());
+        params.put("TRANSACTION_DATE", LocalDate.now());
+        params.put("USER_ID", t.getUserId());
+        params.put("EVENT_ID", t.getEventId());
+        // Insert transaction record for event organizer's balance update
+        String insertOrganizerTransactionSql = "INSERT INTO TRANSACTION (TRANSACTION_AMOUNT, TRANSACTION_TYPE, TRANSACTION_DATE, USER_ID, EVENT_ID) " +
+                "VALUES (:TRANSACTION_AMOUNT, 'TICKET REFUND', :TRANSACTION_DATE, :USER_ID, :EVENT_ID);";
+        jdbcTemplate.update(insertUserTransactionSql, params);
     }
 
 
