@@ -79,9 +79,9 @@ public class TicketDao {
         CustomSqlParameters params = CustomSqlParameters.create();
         params.put("EVENT_ID", t.getEventId());
         params.put("USER_ID", t.getUserId());
-        String updateUserBalanceSql = "UPDATE USER " +
+        String updateUserBalanceSql = "UPDATE USERS " +
                 "SET BALANCE = BALANCE + ( " +
-                "    SELECT PRICE FROM EVENT WHERE EVENT_ID = :EVENT_ID " +
+                "    SELECT TICKET_PRICE FROM EVENT WHERE EVENT_ID = :EVENT_ID " +
                 ") " +
                 "WHERE USER_ID = :USER_ID;";
         jdbcTemplate.update(updateUserBalanceSql, params);
@@ -94,12 +94,12 @@ public class TicketDao {
         jdbcTemplate.update(updateTicketSql, params);
         params = CustomSqlParameters.create();
         params.put("EVENT_ID", t.getEventId());
-        String updateEventOrgBalanceSql = "UPDATE EVENT_ORGANIZER " +
+        String updateEventOrgBalanceSql = "UPDATE USERS " +
                 "SET BALANCE = BALANCE - ( " +
-                "    SELECT PRICE FROM EVENT WHERE EVENT_ID = :EVENT_ID " +
+                "    SELECT TICKET_PRICE FROM EVENT WHERE EVENT_ID = :EVENT_ID " +
                 ") " +
                 "WHERE USER_ID = ( " +
-                "    SELECT ORGANIZER_ID FROM EVENT WHERE EVENT_ID = :EVENT_ID " +
+                "    SELECT USER_ID FROM EVENT WHERE EVENT_ID = :EVENT_ID " +
                 ");";
         params = CustomSqlParameters.create();
         params.put("EVENT_ID", t.getEventId());
