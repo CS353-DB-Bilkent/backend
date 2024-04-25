@@ -5,11 +5,16 @@ import com.ticketseller.backend.core.CustomSqlParameters;
 import com.ticketseller.backend.core.ResultSetWrapper;
 import com.ticketseller.backend.entity.Event;
 import com.ticketseller.backend.entity.Ticket;
+import com.ticketseller.backend.entity.User;
 import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.EventType;
 import com.ticketseller.backend.enums.TicketStatus;
+import com.ticketseller.backend.exceptions.runtimeExceptions.EventRuntimeException;
+import com.ticketseller.backend.services.TicketService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import java.time.format.DateTimeFormatter;
@@ -54,6 +59,79 @@ public class TicketDao {
         try {
 
             return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
+                ResultSetWrapper rsw = new ResultSetWrapper(rs);
+                return Ticket.builder()
+                        .eventId(rsw.getLong("EVENT_ID"))
+                        .ticketId(rsw.getLong("TICKET_ID"))
+                        .userId(rsw.getLong("USER_ID"))
+                        .purchaseDate(rsw.getLocalDateTime("PURCHASE_DATE"))
+                        .price(rsw.getDouble("PRICE"))
+                        .ticketStatus(TicketStatus.getTicketStatusFromStringValue(rsw.getString("TICKET_STATUS")))
+                        .qrCode(rsw.getString("QR_CODE"))
+                        .buyerVisible(Boolean.TRUE.equals(rsw.getBoolean("BUYER_VISIBLE")))
+                        .build();
+            }));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+    public void refundTicket(Ticket t) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("EVENT_ID", t.getEventId());
+        params.put("USER_ID", t.getUserId());
+        String updateUserBalanceSql = "UPDATE USER " +
+                "SET BALANCE = BALANCE + ( " +
+                "    SELECT PRICE FROM EVENT WHERE EVENT_ID = :EVENT_ID " +
+                ") " +
+                "WHERE USER_ID = :USER_ID;";
+        jdbcTemplate.update(updateUserBalanceSql, params);
+        params = CustomSqlParameters.create();
+        params.put("EVENT_ID", t.getEventId());
+        params.put("TICKET_ID", t.getTicketId());
+        String updateTicketSql = "UPDATE TICKET " +
+                "SET TICKET_STATUS = 'Available' " +
+                "WHERE TICKET_ID = :TICKET_ID AND EVENT_ID = :EVENT_ID;";
+        jdbcTemplate.update(updateTicketSql, params);
+        params = CustomSqlParameters.create();
+        params.put("EVENT_ID", t.getEventId());
+        String updateEventOrgBalanceSql = "UPDATE EVENT_ORGANIZER " +
+                "SET BALANCE = BALANCE - ( " +
+                "    SELECT PRICE FROM EVENT WHERE EVENT_ID = :EVENT_ID " +
+                ") " +
+                "WHERE USER_ID = ( " +
+                "    SELECT ORGANIZER_ID FROM EVENT WHERE EVENT_ID = :EVENT_ID " +
+                ");";
+        params = CustomSqlParameters.create();
+        params.put("EVENT_ID", t.getEventId());
+        jdbcTemplate.update(updateEventOrgBalanceSql, params);
+        /*
+        params = CustomSqlParameters.create();
+        params.put("TICKET_ID", ticketId);
+        params.put("USER_ID", t.getUserId());
+        String deleteBuysSql = "DELETE FROM BUYS " +
+                "WHERE TICKET_ID = :TICKET_ID AND USER_ID = :USER_ID;";
+        jdbcTemplate.update(deleteBuysSql, params);
+
+         */
+
+    }
+
+
+    /*
+    MAY GIVE ERROR
+     */
+    public Optional<Ticket> getTicketsByTicketId(Long ticketId) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("TICKET_ID", ticketId);
+
+        String sql =
+                "SELECT * " +
+                        "FROM TICKET e INNER JOIN HOSTS h ON h.TICKET_ID = e.TICKET_ID WHERE e.TICKET_ID = :TICKET_ID";
+
+
+        try {
+
+            return Optional.of((Ticket) jdbcTemplate.query(sql, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
                 return Ticket.builder()
                         .eventId(rsw.getLong("EVENT_ID"))

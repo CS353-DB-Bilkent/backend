@@ -322,4 +322,11 @@ public class EventController {
                         .build()
         );
     }
+    @PostMapping("/refundTicket/{ticketId}")
+    @RequiredRole(Role.USER)
+    public void refundTicket(@PathVariable Long ticketId, HttpServletRequest request){
+        if(ticketService.getTicketsByUserId(((User)request.getAttribute("user")).getUserId(), request).stream().anyMatch(t -> Objects.equals(t.getTicketId(), ticketId))){
+            ticketService.refundTicket(ticketId, request);
+        }
+    }
 }

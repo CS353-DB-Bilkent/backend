@@ -95,4 +95,12 @@ public class TicketService {
 
         return true;
     }
+
+    public void refundTicket(Long ticketId, HttpServletRequest request){
+        Ticket t = getTicketsByUserId(((User)request.getAttribute("user")).getUserId(), request).stream()
+                .filter(ticket -> ticket.getTicketId().equals(ticketId))
+                .findFirst()
+                .orElseThrow(() -> new EventRuntimeException("Ticket not found", 1, HttpStatus.NOT_FOUND));;
+        ticketDao.refundTicket(t);
+    }
 }
