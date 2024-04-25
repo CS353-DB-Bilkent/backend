@@ -386,4 +386,43 @@ public class EventDao {
         String sql = "UPDATE EVENT SET NUMBER_OF_TICKETS = :NUMBER_OF_TICKETS WHERE EVENT_ID = :EVENT_ID";
         jdbcTemplate.update(sql, params);
     }
+
+    public Optional<List<Event>> getUnApprovedEvents(Long userId) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        String sql = "SELECT * FROM EVENT e INNER JOIN HOSTS h ON e.EVENT_ID = h.EVENT_ID WHERE e.EVENT_STATUS = 'UNAPPROVED'";
+        try {
+
+            return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
+                ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                Long venueId = rsw.getLong("VENUE_ID");
+                Venue venue = venueService.findVenueById(venueId);
+
+                Long brandId = rsw.getLong("BRAND_ID");
+                Brand brand = brandService.findBrandById(brandId);
+
+                Long eventPersonId = rsw.getLong("EVENT_PERSON_ID");
+                EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
+
+                return Event.builder()
+                        .eventId(rsw.getLong("EVENT_ID"))
+                        .name(rsw.getString("NAME"))
+                        .details(rsw.getString("DETAILS"))
+                        .startDate(rsw.getLocalDateTime("START_DATE"))
+                        .endDate(rsw.getLocalDateTime("END_DATE"))
+                        .ticketPrice(rsw.getDouble("TICKET_PRICE"))
+                        .numberOfTickets(rsw.getInteger("NUMBER_OF_TICKETS"))
+                        .eventType(EventType.getEventTypeFromStringValue(rsw.getString("EVENT_TYPE")))
+                        .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
+                        .organizerId(rsw.getLong("ORGANIZER_ID"))
+                        .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
+                        .venue(venue)
+                        .brand(brand)
+                        .eventPerson(eventPerson)
+                        .build();
+            }));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
 }

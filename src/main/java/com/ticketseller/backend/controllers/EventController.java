@@ -322,4 +322,23 @@ public class EventController {
                         .build()
         );
     }
+    @PostMapping("/refundTicket/{ticketId}")
+    @RequiredRole(Role.USER)
+    public void refundTicket(@PathVariable Long ticketId, HttpServletRequest request){
+        if(ticketService.getTicketsByUserId(((User)request.getAttribute("user")).getUserId(), request).stream().anyMatch(t -> Objects.equals(t.getTicketId(), ticketId))){
+            ticketService.refundTicket(ticketId, request);
+        }
+    }
+    @GetMapping("/getUnapprovedEvents")
+    @RequiredRole({ Role.ADMIN})
+    public ResponseEntity<ApiResponse<List<Event>>> getUnapprovedEvents(HttpServletRequest request) {
+        User user = (User) request.getAttribute("user");
+
+        return ResponseEntity.ok(
+                ApiResponse.<List<Event>>builder()
+                        .operationResultData(eventService.getUnApprovedEvents(user.getUserId()))
+                        .build()
+
+        );
+    }
 }

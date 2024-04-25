@@ -154,4 +154,8 @@ public class EventService {
         return eventDao.cancelEvent(eventId);
     }
 
+    public List<Event> getUnApprovedEvents(Long userId) {
+        return eventDao.getUnApprovedEvents(userId)
+                .orElseThrow(() -> new EventRuntimeException("Reports not found", 1, HttpStatus.NOT_FOUND));
+    }
 }
