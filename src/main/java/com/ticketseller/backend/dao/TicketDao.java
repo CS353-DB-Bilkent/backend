@@ -119,7 +119,7 @@ public class TicketDao {
 
     /*
     MAY GIVE ERROR
-     */
+
     public Optional<Ticket> getTicketsByTicketId(Long ticketId) {
         CustomSqlParameters params = CustomSqlParameters.create();
         params.put("TICKET_ID", ticketId);
@@ -148,4 +148,5 @@ public class TicketDao {
             return Optional.empty();
         }
     }
+     */
 }
