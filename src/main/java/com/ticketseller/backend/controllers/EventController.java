@@ -329,4 +329,16 @@ public class EventController {
             ticketService.refundTicket(ticketId, request);
         }
     }
+    @GetMapping("/getUnapprovedEvents")
+    @RequiredRole({ Role.ADMIN})
+    public ResponseEntity<ApiResponse<List<Event>>> getUnapprovedEvents(HttpServletRequest request) {
+        User user = (User) request.getAttribute("user");
+
+        return ResponseEntity.ok(
+                ApiResponse.<List<Event>>builder()
+                        .operationResultData(eventService.getUnApprovedEvents(user.getUserId()))
+                        .build()
+
+        );
+    }
 }
