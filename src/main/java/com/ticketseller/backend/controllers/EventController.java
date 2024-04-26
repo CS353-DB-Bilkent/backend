@@ -12,10 +12,12 @@ import com.ticketseller.backend.dto.response.ApiResponse;
 import com.ticketseller.backend.entity.*;
 import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.Role;
+import com.ticketseller.backend.exceptions.runtimeExceptions.EventRuntimeException;
 import com.ticketseller.backend.services.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -116,14 +118,18 @@ public class EventController {
         );
     }
 
-    @PostMapping("/{eventId}/buyTicket")
+    @PostMapping("/buyTicket/{eventId}/{isBuyerVisible}")
     @RequiredRole({Role.USER})
-    public ResponseEntity<String> buyTicket(HttpServletRequest request, @PathVariable Long eventId, @RequestBody BuyTicketRequest buyTicketRequest) {
+    public ResponseEntity<String> buyTicket(HttpServletRequest request, @PathVariable Long eventId, @PathVariable boolean isBuyerVisible) { //, @RequestBody BuyTicketRequest buyTicketRequest
         User user = (User) request.getAttribute("user");
+        /*
+        Ticket ticket = ticketService.getTicketsByUserId(user.getUserId(), request).stream().filter(t -> Objects.equals(t.getEventId(), eventId)).findFirst()
+                .orElseThrow(() -> new EventRuntimeException("Ticket not found", 1, HttpStatus.NOT_FOUND));
+        */
+        System.out.println(" Event ID: " + eventId + " Buyer Visible: " + isBuyerVisible);
 
-        System.out.println(" Event ID: " + eventId + " Buyer Visible: " + buyTicketRequest.isBuyerVisible());
 
-        boolean result = ticketService.buyTicket(user.getUserId(), eventId, buyTicketRequest.isBuyerVisible());
+        boolean result = ticketService.buyTicket(user.getUserId(), eventId, isBuyerVisible, request);
         if (result) {
             return ResponseEntity.ok("Ticket purchased successfully.");
         } else {
