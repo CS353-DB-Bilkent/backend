@@ -24,42 +24,64 @@ public class EventPersonDao {
         CustomSqlParameters params = CustomSqlParameters.create();
 
         params.put("NAME", eventPerson.getEventPersonName());
+
+        String sql = "INSERT INTO EVENT_PERSON (EVENT_PERSON_NAME) " +
+                "VALUES (:NAME)";
+
+        jdbcTemplate.update(sql, params);
     }
 
-    public Optional<EventPerson> findEventPersonById(Long eventPersonId) {
+    public EventPerson findEventPersonById(Long eventPersonId) {
         CustomSqlParameters params = CustomSqlParameters.create();
         params.put("EVENT_PERSON_ID", eventPersonId);
 
         String sql = "SELECT * FROM EVENT_PERSON WHERE EVENT_PERSON_ID = :EVENT_PERSON_ID";
 
         try {
-            return Optional.of(jdbcTemplate.queryForObject(sql, params,(rs, rnum) -> {
+            return (jdbcTemplate.queryForObject(sql, params,(rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
                 return EventPerson.builder()
-                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
                         .eventPersonName(rsw.getString("EVENT_PERSON_NAME"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
+            return null;
         }
     }
 
-    public Optional<List<EventPerson>> getAllEventPersons() {
+    public List<EventPerson> getAllEventPersons() {
         CustomSqlParameters params = CustomSqlParameters.create();
         String sql = "SELECT * FROM EVENT_PERSON";
         try {
-            return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
+            return jdbcTemplate.query(sql, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
                 return EventPerson.builder()
-                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
                         .eventPersonName(rsw.getString("EVENT_PERSON_NAME"))
                         .build();
-            }));
+            });
         } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
+            return null;
+        }
+    }
+
+    public EventPerson findEventPersonByName(String eventPersonName) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("EVENT_PERSON_NAME", eventPersonName);
+
+        String sql = "SELECT * FROM EVENT_PERSON WHERE EVENT_PERSON_NAME = :EVENT_PERSON_NAME";
+
+        try {
+            return jdbcTemplate.queryForObject(sql, params,(rs, rnum) -> {
+                ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                return EventPerson.builder()
+                        .eventPersonName(rsw.getString("EVENT_PERSON_NAME"))
+                        .build();
+            });
+        } catch (EmptyResultDataAccessException e) {
+            return null;
         }
     }
 }

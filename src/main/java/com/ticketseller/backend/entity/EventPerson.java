@@ -11,6 +11,6 @@ import lombok.*;
 
 public class EventPerson {
     private Long eventPersonId;
-    @NotNull
+
     private String eventPersonName;
 }

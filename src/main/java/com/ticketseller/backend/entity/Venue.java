@@ -12,12 +12,12 @@ import lombok.*;
 
 public class Venue {
     private Long venueId;
-    @NotNull
+
     private String venueName;
-    @NotNull
+
     private String venueAddress;
-    @NotNull
+
     private String venueCity;
-    @NotNull
+
     private Long venueCapacity;
 }

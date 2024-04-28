@@ -31,7 +31,7 @@ public class EventService {
     private final ReviewDao reviewDao;
     private final EventPersonDao eventPersonDao;
 
-    public Event saveEvent(String eventName, String eventDetails, LocalDateTime startDate, LocalDateTime endDate, Double ticketPrice, Integer numberOfTickets, String eventType, Integer minAgeAllowed, Long organizerId, Long venueId,  Long brandId, String brandName, Long eventPersonId, String eventPersonName) {
+    public Event saveEvent(String eventName, String eventDetails, LocalDateTime startDate, LocalDateTime endDate, Double ticketPrice, Integer numberOfTickets, String eventType, Integer minAgeAllowed, Long organizerId, Long venueId,  String brandName, String eventPersonName) {
         EventType eventTypeEnum = EventType.getEventTypeFromStringValue(eventType);
 
         if (eventTypeEnum == EventType.UNRECOGNIZED) {
@@ -59,33 +59,27 @@ public class EventService {
             throw new EventRuntimeException("Minimum age allowed is negative", 1, HttpStatus.BAD_REQUEST);
         }
 
-        Optional<Venue> venueOptional = Optional.ofNullable(venueService.findVenueById(venueId));
-        if (!venueOptional.isPresent()) {
+        Venue venue = venueService.findVenueById(venueId);
+        if (venue == null) {
             log.error("Venue not found");
             throw new EventRuntimeException("Venue not found", 1, HttpStatus.BAD_REQUEST);
         }
-        Venue venue = venueOptional.get();
 
         if (numberOfTickets > venue.getVenueCapacity()) {
             log.error("Number of tickets exceeds venue capacity");
             throw new EventRuntimeException("Number of tickets exceeds venue capacity", 1, HttpStatus.BAD_REQUEST);
         }
 
-        Optional<Brand> brandOptional = Optional.ofNullable(brandService.findBrandById(brandId));
-        Brand brand = new Brand();
-        if (!brandOptional.isPresent()) {
-            brand.setBrandId(brandId);
+        Brand brand = brandService.findBrandByName(brandName);
+        if (brand == null) {
+            brand = new Brand();
             brand.setBrandName(brandName);
             brandDao.saveBrand(brand);
         }
-        else {
-            brand = brandOptional.get();
-        }
 
-        EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
+        EventPerson eventPerson = eventPersonService.findEventPersonByName(eventPersonName);
         if (eventPerson == null) {
             eventPerson = new EventPerson();
-            eventPerson.setEventPersonId(eventPersonId);
             eventPerson.setEventPersonName(eventPersonName);
             eventPersonDao.saveEventPerson(eventPerson);
         }
@@ -101,9 +95,9 @@ public class EventService {
                 .eventType(eventTypeEnum)
                 .eventStatus(EventStatus.WAITING_APPROVAL)
                 .organizerId(organizerId)
-                .venue(venue)
-                .brand(brand)
-                .eventPerson(eventPerson)
+                .venueId(venue.getVenueId())
+                .brandId(brand.getBrandId())
+                .eventPersonId(eventPerson.getEventPersonId())
                 .build();
 
         eventDao.saveEvent(event);

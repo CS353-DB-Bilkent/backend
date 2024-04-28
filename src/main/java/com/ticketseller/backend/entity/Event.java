@@ -51,12 +51,12 @@ public class Event extends BaseEntity {
     private Long organizerId;
 
     @NotNull
-    private Venue venue;
+    private Long venueId;
 
     @NotNull
-    private EventPerson eventPerson;
+    private Long eventPersonId;
 
     @NotNull
-    private Brand brand;
+    private Long brandId;
 
 }

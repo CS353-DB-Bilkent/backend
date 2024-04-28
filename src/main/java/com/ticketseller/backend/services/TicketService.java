@@ -74,8 +74,9 @@ public class TicketService {
         ticket.setPurchaseDate(LocalDateTime.now());
         ticket.setPrice(event.getTicketPrice());
         ticket.setBuyerVisible(buyerVisible);
-        ticketDao.saveTicket(ticket);
         ticket.setQrCode(generateQrCode(String.valueOf(String.valueOf(getTicketsByUserId(ticket.getUserId(), request).stream().filter(t -> Objects.equals(t.getEventId(), eventId)).findFirst() .orElseThrow(null).getTicketId()))));
+        ticketDao.saveTicket(ticket);
+
         CustomSqlParameters params = CustomSqlParameters.create();
         params.put("user_id", user.getUserId());
         params.put("price", ticket.getPrice());
@@ -87,8 +88,8 @@ public class TicketService {
                 "END " +
                 "WHERE USER_ID IN (:user_id, :organizer_id)";
         jdbcTemplate.update(sql, params);
-        params = CustomSqlParameters.create();
 
+        params = CustomSqlParameters.create();
         params.put("decrement", 1);
         params.put("event_id", eventId);
 

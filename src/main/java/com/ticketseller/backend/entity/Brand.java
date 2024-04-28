@@ -12,6 +12,6 @@ import lombok.*;
 
 public class Brand {
     private Long brandId;
-    @NotNull
+
     private String brandName;
 }
