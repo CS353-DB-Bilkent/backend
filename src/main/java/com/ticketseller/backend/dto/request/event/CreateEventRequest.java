@@ -39,9 +39,7 @@ public class CreateEventRequest {
     @NotNull
     private Long venueId;
 
-    @NotNull
     private Long brandId;
 
-    @NotNull
     private Long eventPersonId;
 }
