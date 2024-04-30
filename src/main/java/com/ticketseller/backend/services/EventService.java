@@ -70,16 +70,21 @@ public class EventService {
             throw new EventRuntimeException("Number of tickets exceeds venue capacity", 1, HttpStatus.BAD_REQUEST);
         }
 
-        Brand brand = brandService.findBrandById(brandId);
-        if (brand == null) {
-            log.error("Brand not found");
-            throw new EventRuntimeException("Brand not found", 1, HttpStatus.BAD_REQUEST);
+        if (brandId != null) {
+            Brand brand = brandService.findBrandById(brandId);
+            if (brand == null) {
+                log.error("Brand not found");
+                throw new EventRuntimeException("Brand not found", 1, HttpStatus.BAD_REQUEST);
+            }
+
         }
 
-        EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
-        if (eventPerson == null) {
-            log.error("Event person not found");
-            throw new EventRuntimeException("Event person not found", 1, HttpStatus.BAD_REQUEST);
+        if (eventPersonId != null) {
+            EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
+            if (eventPerson == null) {
+                log.error("Event person not found");
+                throw new EventRuntimeException("Event person not found", 1, HttpStatus.BAD_REQUEST);
+            }
         }
 
         Event event = Event.builder()
@@ -94,8 +99,8 @@ public class EventService {
                 .eventStatus(EventStatus.WAITING_APPROVAL)
                 .organizerId(organizerId)
                 .venueId(venue.getVenueId())
-                .brandId(brand.getBrandId())
-                .eventPersonId(eventPerson.getEventPersonId())
+                .brandId(brandId)
+                .eventPersonId(eventPersonId)
                 .build();
 
         eventDao.saveEvent(event);
