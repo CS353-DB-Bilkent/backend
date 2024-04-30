@@ -398,7 +398,7 @@ public class EventDao {
         params.put("EVENT_ID", eventId);
 
         String sql = "SELECT * " +
-                "FROM TICKET t INNER JOIN USER u ON t.USER_ID = u.USER_ID WHERE t.EVENT_ID = :EVENT_ID AND t.BUYER_VISIBLE = TRUE";
+                "FROM TICKET t INNER JOIN USERS u ON t.USER_ID = u.USER_ID WHERE t.EVENT_ID = :EVENT_ID AND t.BUYER_VISIBLE = TRUE";
 
         try {
 

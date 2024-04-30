@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -147,7 +148,6 @@ public class EventController {
             return ResponseEntity.notFound().build();
         }
 
-
         return eventService.rejectEvent(event.getEventId()) ? ResponseEntity.ok(ApiResponse.<Event>builder()
                 .operationResultData(event)
                 .build()): ResponseEntity.internalServerError().build();
@@ -167,13 +167,15 @@ public class EventController {
     }
 
     @PostMapping("/postReview")
-    @RequiredRole({Role.USER})
-    public void postReview(@RequestBody Review review, HttpServletRequest request){
+    @RequiredRole({ Role.USER })
+    public void postReview(HttpServletRequest request, @RequestBody Review review) {
         review.setUserId(((User)request.getAttribute("user")).getUserId());
         review.setUserInitials(
                 ((User) request.getAttribute("user")).getName().substring(0, 1) +
                         ((User) request.getAttribute("user")).getName().substring(1, 2)
         );
+        review.setReviewDate(LocalDateTime.now());
+
         eventService.addReview(review);
     }
 
