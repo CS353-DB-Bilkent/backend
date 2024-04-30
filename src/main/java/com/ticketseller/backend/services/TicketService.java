@@ -74,6 +74,7 @@ public class TicketService {
                 .purchaseDate(LocalDateTime.now())
                 .price(event.getTicketPrice())
                 .buyerVisible(buyerVisible)
+                .qrCode(generateQrCode("Ticket for event"))
                 .build();
 
         ticketDao.saveTicket(ticket);

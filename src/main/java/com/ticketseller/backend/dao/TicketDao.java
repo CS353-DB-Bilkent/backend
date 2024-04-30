@@ -32,16 +32,8 @@ public class TicketDao {
     public void saveTicket(Ticket ticket) {
         CustomSqlParameters params = CustomSqlParameters.create();
 
-        params.put("USER_ID", ticket.getUserId());
-        params.put("EVENT_ID", ticket.getEventId());
-        params.put("PURCHASE_DATE", ticket.getPurchaseDate());
-        params.put("PRICE", ticket.getPrice());
-        params.put("TICKET_STATUS", ticket.getTicketStatus().toString());
-        params.put("QR_CODE", ticket.getQrCode());
-        params.put("BUYER_VISIBLE", ticket.isBuyerVisible());
-
-        String sql = "INSERT INTO TICKET (USER_ID, EVENT_ID, PURCHASE_DATE, PRICE, TICKET_STATUS, QR_CODE, BUYER_VISIBLE) " +
-                "VALUES (:USER_ID, :EVENT_ID, :PURCHASE_DATE, :PRICE, :TICKET_STATUS, :QR_CODE, :BUYER_VISIBLE)";
+        String sql = "insert into ticket (user_id, event_id, purchase_date, price, ticket_status, qr_code, buyer_visible) values ("
+                + ticket.getUserId() + ", " + ticket.getEventId() + ", '" + ticket.getPurchaseDate().format(formatter) + "', " + ticket.getPrice() + ", 'RESERVED', null, true)";
 
         jdbcTemplate.update(sql, params);
     }

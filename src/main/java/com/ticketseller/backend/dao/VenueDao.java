@@ -48,6 +48,7 @@ public class VenueDao {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
                 return Venue.builder()
+                        .venueId(rsw.getLong("VENUE_ID"))
                         .venueName(rsw.getString("NAME"))
                         .venueCapacity(rsw.getLong("CAPACITY"))
                         .venueCity(rsw.getString("CITY"))

@@ -42,6 +42,7 @@ public class EventPersonDao {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
                 return EventPerson.builder()
+                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
                         .eventPersonName(rsw.getString("EVENT_PERSON_NAME"))
                         .build();
             }));
@@ -78,6 +79,7 @@ public class EventPersonDao {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
                 return EventPerson.builder()
+                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
                         .eventPersonName(rsw.getString("EVENT_PERSON_NAME"))
                         .build();
             });
