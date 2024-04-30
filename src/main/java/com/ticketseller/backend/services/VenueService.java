@@ -19,24 +19,15 @@ import java.util.Optional;
 public class VenueService {
     private final VenueDao venueDao;
 
-    public Venue saveVenue(String venueName, String venueAddress, String venueCity, Long venueCapacity) {
-        Venue venue = Venue.builder()
-                .venueName(venueName)
-                .venueAddress(venueAddress)
-                .venueCity(venueCity)
-                .venueCapacity(venueCapacity)
-                .build();
+    public void saveVenue(Venue venue) {
         venueDao.saveVenue(venue);
-        return venue;
     }
 
     public Venue findVenueById(Long venueId) {
-        return venueDao.findVenueById(venueId)
-                .orElseThrow(() -> new EventRuntimeException("Venue not found", 1, HttpStatus.NOT_FOUND));
+        return venueDao.findVenueById(venueId);
     }
 
     public List<Venue> getAllVenues() {
-        return venueDao.getAllVenues()
-                .orElseThrow(() -> new EventRuntimeException("Venues not found", 1, HttpStatus.NOT_FOUND));
+        return venueDao.getAllVenues();
     }
 }

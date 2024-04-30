@@ -18,6 +18,10 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.servlet.http.HttpServletRequest;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -46,7 +50,7 @@ public class TicketService {
     }
 
     @Transactional(rollbackFor = {Exception.class})
-    public boolean buyTicket(Long userId, Long eventId, boolean buyerVisible) {
+    public boolean buyTicket(Long userId, Long eventId, boolean buyerVisible, HttpServletRequest request) {
         User user = userDao.getUserByUserId(userId)
                 .orElseThrow(() -> new EventRuntimeException("User not found", 1, HttpStatus.NOT_FOUND));
 
@@ -69,8 +73,8 @@ public class TicketService {
         ticket.setTicketStatus(TicketStatus.RESERVED);
         ticket.setPurchaseDate(LocalDateTime.now());
         ticket.setPrice(event.getTicketPrice());
-        //ticket.setQrCode(generateQrCode());
         ticket.setBuyerVisible(buyerVisible);
+        ticket.setQrCode(generateQrCode(String.valueOf(String.valueOf(getTicketsByUserId(ticket.getUserId(), request).stream().filter(t -> Objects.equals(t.getEventId(), eventId)).findFirst() .orElseThrow(null).getTicketId()))));
         ticketDao.saveTicket(ticket);
 
         CustomSqlParameters params = CustomSqlParameters.create();
@@ -79,12 +83,13 @@ public class TicketService {
         params.put("organizer_id", event.getOrganizerId());
 
         String sql = "UPDATE users SET balance = CASE " +
-                "WHEN user_id = :user_id THEN balance - :price " +
-                "WHEN user_id = :organizer_id THEN balance + :price " +
+                "WHEN USER_ID = :user_id THEN BALANCE - :price " +
+                "WHEN USER_ID = :organizer_id THEN BALANCE + :price " +
                 "END " +
-                "WHERE user_id IN (:user_id, :organizer_id)";
+                "WHERE USER_ID IN (:user_id, :organizer_id)";
         jdbcTemplate.update(sql, params);
 
+        params = CustomSqlParameters.create();
         params.put("decrement", 1);
         params.put("event_id", eventId);
 
@@ -95,6 +100,27 @@ public class TicketService {
 
         return true;
     }
+
+    private String generateQrCode(String data) {
+        int width = 200;
+        int height = 200;
+        StringBuilder qrCode = new StringBuilder();
+
+        // Generate QR code pattern based on data
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if ((i + j) % 2 == 0) {
+                    qrCode.append("#"); // Black module
+                } else {
+                    qrCode.append(" "); // White module
+                }
+            }
+            qrCode.append("\n");
+        }
+
+        return qrCode.toString();
+    }
+
 
     public void refundTicket(Long ticketId, HttpServletRequest request){
         Ticket t = getTicketsByUserId(((User)request.getAttribute("user")).getUserId(), request).stream()

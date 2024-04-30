@@ -49,11 +49,13 @@ public class EventDao {
         params.put("MIN_AGE_ALLOWED", event.getMinAgeAllowed());
         params.put("EVENT_TYPE", event.getEventType().name());
         params.put("EVENT_STATUS", event.getEventStatus().name());
-        params.put("VENUE_ID", event.getVenue().getVenueId());
+        params.put("VENUE_ID", event.getVenueId());
+        params.put("BRAND_ID", event.getBrandId());
+        params.put("EVENT_PERSON_ID", event.getEventPersonId());
         params.put("ORGANIZER_ID", event.getOrganizerId());
 
-        String sql = "INSERT INTO EVENT (NAME, DETAILS, START_DATE, END_DATE, TICKET_PRICE, NUMBER_OF_TICKETS, MIN_AGE_ALLOWED, EVENT_TYPE, EVENT_STATUS, VENUE_ID, ORGANIZER_ID) " +
-                "VALUES (:NAME, :DETAILS, :START_DATE, :END_DATE, :TICKET_PRICE, :NUMBER_OF_TICKETS, :MIN_AGE_ALLOWED, :EVENT_TYPE, :EVENT_STATUS, :VENUE_ID, :ORGANIZER_ID)";
+        String sql = "INSERT INTO EVENT (NAME, DETAILS, START_DATE, END_DATE, TICKET_PRICE, NUMBER_OF_TICKETS, MIN_AGE_ALLOWED, EVENT_TYPE, EVENT_STATUS, VENUE_ID, BRAND_ID, EVENT_PERSON_ID, ORGANIZER_ID) " +
+                "VALUES (:NAME, :DETAILS, :START_DATE, :END_DATE, :TICKET_PRICE, :NUMBER_OF_TICKETS, :MIN_AGE_ALLOWED, :EVENT_TYPE, :EVENT_STATUS, :VENUE_ID, :BRAND_ID, :EVENT_PERSON_ID, :ORGANIZER_ID)";
 
         jdbcTemplate.update(sql, params);
     }
@@ -93,15 +95,6 @@ public class EventDao {
             return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
-                Long venueId = rsw.getLong("VENUE_ID");
-                Venue venue = venueService.findVenueById(venueId);
-
-                Long brandId = rsw.getLong("BRAND_ID");
-                Brand brand = brandService.findBrandById(brandId);
-
-                Long eventPersonId = rsw.getLong("EVENT_PERSON_ID");
-                EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
-
                 return Event.builder()
                         .eventId(rsw.getLong("EVENT_ID"))
                         .name(rsw.getString("NAME"))
@@ -114,9 +107,9 @@ public class EventDao {
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
-                        .venue(venue)
-                        .brand(brand)
-                        .eventPerson(eventPerson)
+                        .venueId(rsw.getLong("VENUE_ID"))
+                        .brandId(rsw.getLong("BRAND_ID"))
+                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -137,15 +130,6 @@ public class EventDao {
             return Optional.of(jdbcTemplate.queryForObject(sql, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
-                Long venueId = rsw.getLong("VENUE_ID");
-                Venue venue = venueService.findVenueById(venueId);
-
-                Long brandId = rsw.getLong("BRAND_ID");
-                Brand brand = brandService.findBrandById(brandId);
-
-                Long eventPersonId = rsw.getLong("EVENT_PERSON_ID");
-                EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
-
                 return Event.builder()
                         .eventId(rsw.getLong("EVENT_ID"))
                         .name(rsw.getString("NAME"))
@@ -158,9 +142,9 @@ public class EventDao {
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
-                        .venue(venue)
-                        .brand(brand)
-                        .eventPerson(eventPerson)
+                        .venueId(rsw.getLong("VENUE_ID"))
+                        .brandId(rsw.getLong("BRAND_ID"))
+                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -181,15 +165,6 @@ public class EventDao {
             return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
-                Long venueId = rsw.getLong("VENUE_ID");
-                Venue venue = venueService.findVenueById(venueId);
-
-                Long brandId = rsw.getLong("BRAND_ID");
-                Brand brand = brandService.findBrandById(brandId);
-
-                Long eventPersonId = rsw.getLong("EVENT_PERSON_ID");
-                EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
-
                 return Event.builder()
                         .eventId(rsw.getLong("EVENT_ID"))
                         .name(rsw.getString("NAME"))
@@ -202,9 +177,9 @@ public class EventDao {
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
-                        .venue(venue)
-                        .brand(brand)
-                        .eventPerson(eventPerson)
+                        .venueId(rsw.getLong("VENUE_ID"))
+                        .brandId(rsw.getLong("BRAND_ID"))
+                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -225,15 +200,6 @@ public class EventDao {
             return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
-                Long venueId = rsw.getLong("VENUE_ID");
-                Venue venue = venueService.findVenueById(venueId);
-
-                Long brandId = rsw.getLong("BRAND_ID");
-                Brand brand = brandService.findBrandById(brandId);
-
-                Long eventPersonId = rsw.getLong("EVENT_PERSON_ID");
-                EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
-
                 return Event.builder()
                         .eventId(rsw.getLong("EVENT_ID"))
                         .name(rsw.getString("NAME"))
@@ -246,9 +212,9 @@ public class EventDao {
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
-                        .venue(venue)
-                        .brand(brand)
-                        .eventPerson(eventPerson)
+                        .venueId(rsw.getLong("VENUE_ID"))
+                        .brandId(rsw.getLong("BRAND_ID"))
+                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -280,15 +246,6 @@ public class EventDao {
             return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
-                Long venueId = rsw.getLong("VENUE_ID");
-                Venue venue = venueService.findVenueById(venueId);
-
-                Long brandId = rsw.getLong("BRAND_ID");
-                Brand brand = brandService.findBrandById(brandId);
-
-                Long eventPersonId = rsw.getLong("EVENT_PERSON_ID");
-                EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
-
                 return Event.builder()
                         .eventId(rsw.getLong("EVENT_ID"))
                         .name(rsw.getString("NAME"))
@@ -301,9 +258,9 @@ public class EventDao {
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
-                        .venue(venue)
-                        .brand(brand)
-                        .eventPerson(eventPerson)
+                        .venueId(rsw.getLong("VENUE_ID"))
+                        .brandId(rsw.getLong("BRAND_ID"))
+                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -395,15 +352,6 @@ public class EventDao {
             return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
-                Long venueId = rsw.getLong("VENUE_ID");
-                Venue venue = venueService.findVenueById(venueId);
-
-                Long brandId = rsw.getLong("BRAND_ID");
-                Brand brand = brandService.findBrandById(brandId);
-
-                Long eventPersonId = rsw.getLong("EVENT_PERSON_ID");
-                EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
-
                 return Event.builder()
                         .eventId(rsw.getLong("EVENT_ID"))
                         .name(rsw.getString("NAME"))
@@ -416,9 +364,9 @@ public class EventDao {
                         .eventStatus(EventStatus.getEventStatusFromStringValue(rsw.getString("EVENT_STATUS")))
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
-                        .venue(venue)
-                        .brand(brand)
-                        .eventPerson(eventPerson)
+                        .venueId(rsw.getLong("VENUE_ID"))
+                        .brandId(rsw.getLong("BRAND_ID"))
+                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {

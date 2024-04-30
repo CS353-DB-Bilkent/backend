@@ -25,19 +25,18 @@ public class EventPersonService {
     private final EventPersonDao eventPersonDao;
 
     public EventPerson findEventPersonById(Long eventPersonId) {
-        return (EventPerson) eventPersonDao.findEventPersonById(eventPersonId)
-                .orElseThrow(() -> new EventRuntimeException("EventPerson not found", 1, HttpStatus.NOT_FOUND));
+        return (EventPerson) eventPersonDao.findEventPersonById(eventPersonId);
     }
 
-    public EventPerson saveEventPerson(String eventPersonName) {
-        EventPerson eventPerson = EventPerson.builder()
-                .eventPersonName(eventPersonName)
-                .build();
+    public void saveEventPerson(EventPerson eventPerson) {
         eventPersonDao.saveEventPerson(eventPerson);
-        return eventPerson;
     }
+
     public List<EventPerson> getAllEventPersons() {
-        return eventPersonDao.getAllEventPersons()
-                .orElseThrow(() -> new EventRuntimeException("EventPerson not found", 1, HttpStatus.NOT_FOUND));
+        return eventPersonDao.getAllEventPersons();
+    }
+
+    public EventPerson findEventPersonByName(String eventPersonName) {
+        return (EventPerson) eventPersonDao.findEventPersonByName(eventPersonName);
     }
 }

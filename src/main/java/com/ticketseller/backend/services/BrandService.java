@@ -25,20 +25,18 @@ public class BrandService {
     private final BrandDao brandDao;
 
     public Brand findBrandById(Long brandId) {
-        return brandDao.findBrandById(brandId)
-                .orElseThrow(() -> new EventRuntimeException("Brand not found", 1, HttpStatus.NOT_FOUND));
+        return brandDao.findBrandById(brandId);
     }
 
-    public Brand saveBrand(String brandName) {
-        Brand brand = Brand.builder()
-                .brandName(brandName)
-                .build();
+    public Brand findBrandByName(String brandName) {
+        return brandDao.findBrandByName(brandName);
+    }
+
+    public  void saveBrand(Brand brand) {
         brandDao.saveBrand(brand);
-        return brand;
     }
 
     public List<Brand> getAllBrands() {
-        return brandDao.getAllBrands()
-                .orElseThrow(() -> new EventRuntimeException("Brands not found", 1, HttpStatus.NOT_FOUND));
+        return brandDao.getAllBrands();
     }
 }

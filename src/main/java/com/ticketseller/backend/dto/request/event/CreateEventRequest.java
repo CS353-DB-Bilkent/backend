@@ -40,15 +40,8 @@ public class CreateEventRequest {
     private Long venueId;
 
     @NotNull
-    private Long brandId;
-
-    @NotNull
     private String brandName;
 
     @NotNull
-    private Long eventPersonId;
-
-    @NotNull
     private String eventPersonName;
-
 }
