@@ -31,7 +31,7 @@ public class EventService {
     private final ReviewDao reviewDao;
     private final EventPersonDao eventPersonDao;
 
-    public Event saveEvent(String eventName, String eventDetails, LocalDateTime startDate, LocalDateTime endDate, Double ticketPrice, Integer numberOfTickets, String eventType, Integer minAgeAllowed, Long organizerId, Long venueId,  String brandName, String eventPersonName) {
+    public Event saveEvent(String eventName, String eventDetails, LocalDateTime startDate, LocalDateTime endDate, Double ticketPrice, Integer numberOfTickets, String eventType, Integer minAgeAllowed, Long organizerId, Long venueId,  Long brandId, Long eventPersonId) {
         EventType eventTypeEnum = EventType.getEventTypeFromStringValue(eventType);
 
         if (eventTypeEnum == EventType.UNRECOGNIZED) {
@@ -70,18 +70,16 @@ public class EventService {
             throw new EventRuntimeException("Number of tickets exceeds venue capacity", 1, HttpStatus.BAD_REQUEST);
         }
 
-        Brand brand = brandService.findBrandByName(brandName);
+        Brand brand = brandService.findBrandById(brandId);
         if (brand == null) {
-            brand = new Brand();
-            brand.setBrandName(brandName);
-            brandDao.saveBrand(brand);
+            log.error("Brand not found");
+            throw new EventRuntimeException("Brand not found", 1, HttpStatus.BAD_REQUEST);
         }
 
-        EventPerson eventPerson = eventPersonService.findEventPersonByName(eventPersonName);
+        EventPerson eventPerson = eventPersonService.findEventPersonById(eventPersonId);
         if (eventPerson == null) {
-            eventPerson = new EventPerson();
-            eventPerson.setEventPersonName(eventPersonName);
-            eventPersonDao.saveEventPerson(eventPerson);
+            log.error("Event person not found");
+            throw new EventRuntimeException("Event person not found", 1, HttpStatus.BAD_REQUEST);
         }
 
         Event event = Event.builder()

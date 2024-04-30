@@ -63,8 +63,8 @@ public class EventController {
                                 createEventRequest.getMinAgeAllowed(),
                                 user.getUserId(),
                                 createEventRequest.getVenueId(),
-                                createEventRequest.getBrandName(),
-                                createEventRequest.getEventPersonName()
+                                createEventRequest.getBrandId(),
+                                createEventRequest.getEventPersonId()
                         ))
                         .build()
         );
