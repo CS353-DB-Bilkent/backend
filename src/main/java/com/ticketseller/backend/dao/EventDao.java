@@ -164,8 +164,8 @@ public class EventDao {
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
                         .venueId(rsw.getLong("VENUE_ID"))
-                        .brandId(rsw.getLong("BRAND_ID"))
-                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
+                        .brandId(rsw.isNull("BRAND_ID") ? null : rsw.getLong("BRAND_ID"))
+                        .eventPersonId(rsw.isNull("EVENT_PERSON_ID") ? null : rsw.getLong("EVENT_PERSON_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -347,11 +347,12 @@ public class EventDao {
             return Optional.empty();
         }
     }
-    public boolean cancelEvent(Long eventId){
+    public boolean cancelEvent(Long eventId) {
+
         CustomSqlParameters params = CustomSqlParameters.create();
         params.put("EVENT_ID", eventId);
         String sql = "UPDATE EVENT " +
-                "SET EVENT_STATUS='CANCELED' " +  // Use single quotes for string literals
+                "SET EVENT_STATUS='CANCELLED' " +  // Use single quotes for string literals
                 "WHERE EVENT_ID = :EVENT_ID";
         int rowsAffected = jdbcTemplate.update(sql, params);
         return rowsAffected > 0;
