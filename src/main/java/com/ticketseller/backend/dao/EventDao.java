@@ -58,6 +58,27 @@ public class EventDao {
                 "VALUES (:NAME, :DETAILS, :START_DATE, :END_DATE, :TICKET_PRICE, :NUMBER_OF_TICKETS, :MIN_AGE_ALLOWED, :EVENT_TYPE, :EVENT_STATUS, :VENUE_ID, :BRAND_ID, :EVENT_PERSON_ID, :ORGANIZER_ID)";
 
         jdbcTemplate.update(sql, params);
+
+        String maxIdSql = "SELECT MAX(EVENT_ID) as MAX_EVENT_ID FROM EVENT";
+
+        // Execute maxIdSql
+        Long eventId = jdbcTemplate.queryForObject(maxIdSql, CustomSqlParameters.create(), (rs, rnum) -> {
+            ResultSetWrapper rsw = new ResultSetWrapper(rs);
+            return rsw.getLong("MAX_EVENT_ID");
+        });
+
+        // Insert into hosts
+        String insertHostsSql = "INSERT INTO HOSTS (EVENT_ID, BRAND_ID, EVENT_PERSON_ID) " +
+                "VALUES (:EVENT_ID, :BRAND_ID, :EVENT_PERSON_ID)";
+
+        System.out.println(eventId);
+
+        CustomSqlParameters hostsParams = CustomSqlParameters.create();
+        hostsParams.put("EVENT_ID", eventId);
+        hostsParams.put("BRAND_ID", event.getBrandId());
+        hostsParams.put("EVENT_PERSON_ID", event.getEventPersonId());
+
+        jdbcTemplate.update(insertHostsSql, hostsParams);
     }
 
     public Optional<List<Event>> getFilteredEvents(String searchTerm, String artistName, String brandName, String venueName, String location, String type, Integer minAgeAllowed, LocalDateTime startDate, String orderBy, String orderDirection) {
