@@ -32,7 +32,6 @@ public class UserController {
         );
     }
     @PostMapping("/{userId}/updateInfo")
-    @RequiredRole({Role.USER})
     public ResponseEntity<ApiResponse<User>> updateInfo(@Valid @RequestBody UpdateInfoRequest request, HttpServletRequest requesthttp) {
         String newName = request.getName();
         String newEmail = request.getEmail();

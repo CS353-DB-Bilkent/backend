@@ -129,8 +129,8 @@ public class EventDao {
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
                         .venueId(rsw.getLong("VENUE_ID"))
-                        .brandId(rsw.getLong("BRAND_ID"))
-                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
+                        .brandId(rsw.isNull("BRAND_ID") ? null : rsw.getLong("BRAND_ID"))
+                        .eventPersonId(rsw.isNull("EVENT_PERSON_ID") ? null : rsw.getLong("EVENT_PERSON_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -199,8 +199,8 @@ public class EventDao {
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
                         .venueId(rsw.getLong("VENUE_ID"))
-                        .brandId(rsw.getLong("BRAND_ID"))
-                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
+                        .brandId(rsw.isNull("BRAND_ID") ? null : rsw.getLong("BRAND_ID"))
+                        .eventPersonId(rsw.isNull("EVENT_PERSON_ID") ? null : rsw.getLong("EVENT_PERSON_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -234,8 +234,8 @@ public class EventDao {
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
                         .venueId(rsw.getLong("VENUE_ID"))
-                        .brandId(rsw.getLong("BRAND_ID"))
-                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
+                        .brandId(rsw.isNull("BRAND_ID") ? null : rsw.getLong("BRAND_ID"))
+                        .eventPersonId(rsw.isNull("EVENT_PERSON_ID") ? null : rsw.getLong("EVENT_PERSON_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -280,8 +280,8 @@ public class EventDao {
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
                         .venueId(rsw.getLong("VENUE_ID"))
-                        .brandId(rsw.getLong("BRAND_ID"))
-                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
+                        .brandId(rsw.isNull("BRAND_ID") ? null : rsw.getLong("BRAND_ID"))
+                        .eventPersonId(rsw.isNull("EVENT_PERSON_ID") ? null : rsw.getLong("EVENT_PERSON_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
@@ -368,7 +368,7 @@ public class EventDao {
 
     public Optional<List<Event>> getUnApprovedEvents(Long userId) {
         CustomSqlParameters params = CustomSqlParameters.create();
-        String sql = "SELECT * FROM EVENT e INNER JOIN HOSTS h ON e.EVENT_ID = h.EVENT_ID WHERE e.EVENT_STATUS = 'UNAPPROVED'";
+        String sql = "SELECT * FROM EVENT e INNER JOIN HOSTS h ON e.EVENT_ID = h.EVENT_ID WHERE e.EVENT_STATUS = 'WAITING_APPROVAL'";
         try {
 
             return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
@@ -387,8 +387,8 @@ public class EventDao {
                         .organizerId(rsw.getLong("ORGANIZER_ID"))
                         .minAgeAllowed(rsw.getInteger("MIN_AGE_ALLOWED"))
                         .venueId(rsw.getLong("VENUE_ID"))
-                        .brandId(rsw.getLong("BRAND_ID"))
-                        .eventPersonId(rsw.getLong("EVENT_PERSON_ID"))
+                        .brandId(rsw.isNull("BRAND_ID") ? null : rsw.getLong("BRAND_ID"))
+                        .eventPersonId(rsw.isNull("EVENT_PERSON_ID") ? null : rsw.getLong("EVENT_PERSON_ID"))
                         .build();
             }));
         } catch (EmptyResultDataAccessException e) {
