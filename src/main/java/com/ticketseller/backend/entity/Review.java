@@ -3,6 +3,7 @@ package com.ticketseller.backend.entity;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -11,11 +12,15 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Review {
-    private int rating;
+    private Integer rating;
 
     private String description;
 
-    private LocalDate reviewDate;
+    private LocalDateTime reviewDate;
+
+    private Long eventId;
 
     private Long userId;
+
+    private String userInitials;
 }

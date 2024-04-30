@@ -170,7 +170,11 @@ public class EventController {
     @RequiredRole({Role.USER})
     public void postReview(@RequestBody Review review, HttpServletRequest request){
         review.setUserId(((User)request.getAttribute("user")).getUserId());
-        eventService.addReview(review); //TODO: userid must be added
+        review.setUserInitials(
+                ((User) request.getAttribute("user")).getName().substring(0, 1) +
+                        ((User) request.getAttribute("user")).getName().substring(1, 2)
+        );
+        eventService.addReview(review);
     }
 
     @GetMapping("/getAllMyEvents")
@@ -316,4 +320,25 @@ public class EventController {
 
         );
     }
+
+    @GetMapping("/{eventId}/getReviews")
+    @NoAuthRequired
+    public ResponseEntity<ApiResponse<List<Review>>> getReviews(@PathVariable Long eventId) {
+        return ResponseEntity.ok(
+                ApiResponse.<List<Review>>builder()
+                        .operationResultData(eventService.getReviewsByEventId(eventId))
+                        .build()
+        );
+    }
+
+    @GetMapping("/{eventId}/getEventAttendees")
+    @NoAuthRequired
+    public ResponseEntity<ApiResponse<List<User>>> getEventAttendees(@PathVariable Long eventId) {
+        return ResponseEntity.ok(
+                ApiResponse.<List<User>>builder()
+                        .operationResultData(eventService.getEventAttendeesByEventId(eventId))
+                        .build()
+        );
+    }
+
 }

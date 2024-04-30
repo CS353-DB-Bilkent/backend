@@ -155,4 +155,16 @@ public class EventService {
         return eventDao.getUnApprovedEvents(userId)
                 .orElseThrow(() -> new EventRuntimeException("Reports not found", 1, HttpStatus.NOT_FOUND));
     }
+
+    public List<Review> getReviewsByEventId(Long eventId) {
+        return reviewDao.getReviewsByEventId(eventId)
+                .orElseThrow(() -> new EventRuntimeException("Reviews not found", 1, HttpStatus.NOT_FOUND));
+    }
+
+    public List<User> getEventAttendeesByEventId(Long eventId) {
+        return eventDao.getEventAttendeesByEventId(eventId)
+                .orElseThrow(() -> new EventRuntimeException("Reviews not found", 1, HttpStatus.NOT_FOUND));
+    }
+
+
 }

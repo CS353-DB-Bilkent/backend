@@ -3,11 +3,7 @@ package com.ticketseller.backend.dao;
 import com.ticketseller.backend.core.CustomJdbcTemplate;
 import com.ticketseller.backend.core.CustomSqlParameters;
 import com.ticketseller.backend.core.ResultSetWrapper;
-import com.ticketseller.backend.entity.Brand;
-import com.ticketseller.backend.entity.Event;
-import com.ticketseller.backend.entity.Report;
-import com.ticketseller.backend.entity.EventPerson;
-import com.ticketseller.backend.entity.Venue;
+import com.ticketseller.backend.entity.*;
 import com.ticketseller.backend.enums.EventStatus;
 import com.ticketseller.backend.enums.EventType;
 import com.ticketseller.backend.services.BrandService;
@@ -242,6 +238,7 @@ public class EventDao {
             return Optional.empty();
         }
     }
+
     public boolean approveEvent(Long eventId) {
         CustomSqlParameters params = CustomSqlParameters.create();
         params.put("EVENT_ID", eventId);
@@ -393,6 +390,34 @@ public class EventDao {
             }));
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
+        }
+    }
+
+    public Optional<List<User>> getEventAttendeesByEventId(Long eventId) {
+        CustomSqlParameters params = CustomSqlParameters.create();
+        params.put("EVENT_ID", eventId);
+
+        String sql = "SELECT * " +
+                "FROM TICKET t INNER JOIN USER u ON t.USER_ID = u.USER_ID WHERE t.EVENT_ID = :EVENT_ID AND t.BUYER_VISIBLE = TRUE";
+
+        try {
+
+                return Optional.of(jdbcTemplate.query(sql, params, (rs, rnum) -> {
+                    ResultSetWrapper rsw = new ResultSetWrapper(rs);
+
+                    return User.builder()
+                            .userId(rsw.getLong("USER_ID"))
+                            .email(rsw.getString("EMAIL"))
+                            .name(rsw.getString("NAME"))
+                            .phone(rsw.getString("PHONE"))
+                            .password(rsw.getString("PASSWORD"))
+                            .registeredDate(rsw.getLocalDateTime("REGISTERED_DATE"))
+                            .birthDate(rsw.getLocalDateTime("BIRTH_DATE"))
+                            .balance(rsw.getDouble("BALANCE"))
+                            .build();
+                }));
+            } catch (EmptyResultDataAccessException e) {
+                return Optional.empty();
         }
     }
 }

@@ -27,13 +27,15 @@ import java.util.Optional;
 public class TicketDao {
     private final CustomJdbcTemplate jdbcTemplate;
 
+    public final EventDao eventDao;
+
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public void saveTicket(Ticket ticket) {
         CustomSqlParameters params = CustomSqlParameters.create();
 
         String sql = "insert into ticket (user_id, event_id, purchase_date, price, ticket_status, qr_code, buyer_visible) values ("
-                + ticket.getUserId() + ", " + ticket.getEventId() + ", '" + ticket.getPurchaseDate().format(formatter) + "', " + ticket.getPrice() + ", 'RESERVED', null, true)";
+                + ticket.getUserId() + ", " + ticket.getEventId() + ", '" + ticket.getPurchaseDate().format(formatter) + "', " + ticket.getPrice() + ", 'RESERVED', null, " + ticket.isBuyerVisible() + ");";
 
         jdbcTemplate.update(sql, params);
     }
@@ -78,13 +80,14 @@ public class TicketDao {
                 ") " +
                 "WHERE USER_ID = :USER_ID;";
         jdbcTemplate.update(updateUserBalanceSql, params);
+
         params = CustomSqlParameters.create();
         params.put("EVENT_ID", t.getEventId());
-        params.put("TICKET_ID", t.getTicketId());
-        String updateTicketSql = "UPDATE TICKET " +
-                "SET TICKET_STATUS = 'EMPTY' " +
-                "WHERE TICKET_ID = :TICKET_ID AND EVENT_ID = :EVENT_ID;";
+        String updateTicketSql = "UPDATE EVENT " +
+                "SET NUMBER_OF_TICKETS = NUMBER_OF_TICKETS + 1 " +
+                "WHERE EVENT_ID = :EVENT_ID;";
         jdbcTemplate.update(updateTicketSql, params);
+
         params = CustomSqlParameters.create();
         params.put("EVENT_ID", t.getEventId());
         String updateEventOrgBalanceSql = "UPDATE USERS " +
@@ -92,9 +95,10 @@ public class TicketDao {
                 "    SELECT TICKET_PRICE FROM EVENT WHERE EVENT_ID = :EVENT_ID " +
                 ") " +
                 "WHERE USER_ID = ( " +
-                "    SELECT USER_ID FROM EVENT WHERE EVENT_ID = :EVENT_ID " +
+                "    SELECT ORGANIZER_ID FROM EVENT WHERE EVENT_ID = :EVENT_ID " +
                 ");";
         jdbcTemplate.update(updateEventOrgBalanceSql, params);
+
         params = CustomSqlParameters.create();
         params.put("TRANSACTION_AMOUNT", t.getPrice());
         params.put("TRANSACTION_DATE", LocalDate.now());
@@ -102,17 +106,23 @@ public class TicketDao {
         params.put("EVENT_ID", t.getEventId());
         // Insert transaction record for user's balance update
         String insertUserTransactionSql = "INSERT INTO TRANSACTION (TRANSACTION_AMOUNT, TRANSACTION_TYPE, TRANSACTION_DATE, USER_ID, EVENT_ID) " +
-                "VALUES (:TRANSACTION_AMOUNT, 'TICKET REFUND', :TRANSACTION_DATE, :USER_ID, :EVENT_ID);";
+                "VALUES (:TRANSACTION_AMOUNT, 'EVENT_REFUND', :TRANSACTION_DATE, :USER_ID, :EVENT_ID);";
         jdbcTemplate.update(insertUserTransactionSql, params);
+
         params = CustomSqlParameters.create();
         params.put("TRANSACTION_AMOUNT", -1 * t.getPrice());
         params.put("TRANSACTION_DATE", LocalDate.now());
-        params.put("USER_ID", t.getUserId());
         params.put("EVENT_ID", t.getEventId());
+        params.put("ORGANIZER_ID", eventDao.getEventByEventId(t.getEventId()).get().getOrganizerId());
         // Insert transaction record for event organizer's balance update
         String insertOrganizerTransactionSql = "INSERT INTO TRANSACTION (TRANSACTION_AMOUNT, TRANSACTION_TYPE, TRANSACTION_DATE, USER_ID, EVENT_ID) " +
-                "VALUES (:TRANSACTION_AMOUNT, 'TICKET REFUND', :TRANSACTION_DATE, :USER_ID, :EVENT_ID);";
-        jdbcTemplate.update(insertUserTransactionSql, params);
+                "VALUES (:TRANSACTION_AMOUNT, 'EVENT_REFUND', :TRANSACTION_DATE, :ORGANIZER_ID, :EVENT_ID);";
+        jdbcTemplate.update(insertOrganizerTransactionSql, params);
+
+        params = CustomSqlParameters.create();
+        params.put("TICKET_ID", t.getTicketId());
+        String deleteTicketSql = "DELETE FROM TICKET WHERE TICKET_ID = :TICKET_ID;";
+        jdbcTemplate.update(deleteTicketSql, params);
     }
 
 
