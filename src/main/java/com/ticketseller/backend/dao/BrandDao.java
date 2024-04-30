@@ -64,6 +64,7 @@ public class BrandDao {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
                 return Brand.builder()
+                        .brandId(rsw.getLong("BRAND_ID"))
                         .brandName(rsw.getString("BRAND_NAME"))
                         .build();
             });
