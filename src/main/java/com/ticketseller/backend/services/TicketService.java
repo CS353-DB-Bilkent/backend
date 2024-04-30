@@ -67,14 +67,15 @@ public class TicketService {
             throw new EventRuntimeException("Insufficient balance", 3, HttpStatus.PAYMENT_REQUIRED);
         }
 
-        Ticket ticket = new Ticket();
-        ticket.setUserId(userId);
-        ticket.setEventId(eventId);
-        ticket.setTicketStatus(TicketStatus.RESERVED);
-        ticket.setPurchaseDate(LocalDateTime.now());
-        ticket.setPrice(event.getTicketPrice());
-        ticket.setBuyerVisible(buyerVisible);
-        ticket.setQrCode(generateQrCode(String.valueOf(String.valueOf(getTicketsByUserId(ticket.getUserId(), request).stream().filter(t -> Objects.equals(t.getEventId(), eventId)).findFirst() .orElseThrow(null).getTicketId()))));
+        Ticket ticket = Ticket.builder()
+                .userId(userId)
+                .eventId(eventId)
+                .ticketStatus(TicketStatus.RESERVED)
+                .purchaseDate(LocalDateTime.now())
+                .price(event.getTicketPrice())
+                .buyerVisible(buyerVisible)
+                .build();
+
         ticketDao.saveTicket(ticket);
 
         CustomSqlParameters params = CustomSqlParameters.create();
@@ -87,6 +88,7 @@ public class TicketService {
                 "WHEN USER_ID = :organizer_id THEN BALANCE + :price " +
                 "END " +
                 "WHERE USER_ID IN (:user_id, :organizer_id)";
+
         jdbcTemplate.update(sql, params);
 
         params = CustomSqlParameters.create();
