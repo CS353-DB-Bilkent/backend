@@ -269,51 +269,16 @@ public class EventDao {
     }
     public Optional<List<Report>> createReport(Long eventId, Long organizerId){
         CustomSqlParameters params = CustomSqlParameters.create();
-        CustomSqlParameters params2 = CustomSqlParameters.create();
 
-        params2.put("EVENT_ID", eventId);
         params.put("EVENT_ID", eventId);
-        params.put("ORGANIZER_ID", organizerId);
-        // Insert or update the report
-        String sqlUpdate = "UPDATE REPORT " +
-                "SET " +
-                "  REPORT_DATE = CURRENT_TIMESTAMP, " +
-                "  TOTAL_SALES = (SELECT COUNT(*) FROM TICKET WHERE EVENT_ID = :EVENT_ID AND TICKET_STATUS = 'RESERVED'), " +
-                "  TOTAL_REVENUE = (SELECT SUM(PRICE) FROM TICKET WHERE EVENT_ID = :EVENT_ID AND TICKET_STATUS = 'RESERVED') " +
-                "WHERE EVENT_ID = :EVENT_ID";
 
-        String sqlInsert = "INSERT INTO REPORT (REPORT_DATE, TOTAL_SALES, TOTAL_REVENUE, ORGANIZER_ID, EVENT_ID) " +
-                "SELECT " +
-                "  CURRENT_TIMESTAMP AS REPORT_DATE, " +
-                "  COUNT(*) AS TOTAL_SALES, " +
-                "  SUM(PRICE) AS TOTAL_REVENUE, " +
-                "  :ORGANIZER_ID AS ORGANIZER_ID, " +
-                "  :EVENT_ID AS EVENT_ID " +
-                "FROM " +
-                "  TICKET " +
-                "WHERE " +
-                "  EVENT_ID = :EVENT_ID AND " +
-                "  TICKET_STATUS = 'RESERVED' " +
-                "GROUP BY " +
-                "  EVENT_ID";
-
-        try {
-            int rowsUpdated = jdbcTemplate.update(sqlUpdate, params2);
-            if (rowsUpdated == 0) {
-                // No rows were updated, insert a new report
-                jdbcTemplate.update(sqlInsert, params);
-            }
-        } catch (DataAccessException e) {
-            // Update failed, insert a new report
-            jdbcTemplate.update(sqlInsert, params2);
-        }
-        // Select the inserted or updated values
-        String selectSql = "SELECT REPORT_DATE, TOTAL_SALES, TOTAL_REVENUE " +
-                "FROM REPORT " +
-                "WHERE EVENT_ID = :EVENT_ID;";
+        String sqlInsert = "SELECT *" +
+                " FROM event_report" +
+                " WHERE event_id = :EVENT_ID\n;";
+        //jdbcTemplate.update(sqlInsert, params);
         try {
 
-            return Optional.of(jdbcTemplate.query(selectSql, params2, (rs, rnum) -> {
+            return Optional.of(jdbcTemplate.query(sqlInsert, params, (rs, rnum) -> {
                 ResultSetWrapper rsw = new ResultSetWrapper(rs);
 
                 return Report.builder()
